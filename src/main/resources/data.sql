@@ -1,12 +1,22 @@
 
-INSERT INTO product (name, description, price, category, sku, stock_quantity) VALUES
-                                                                                  ('Coffee', 'Freshly brewed coffee', 2.50, 'Beverages', 'BVRG001', 100),
-                                                                                  ('Tea', 'Assorted tea varieties', 2.00, 'Beverages', 'BVRG002', 80),
-                                                                                  ('Croissant', 'Butter croissant', 3.50, 'Bakery', 'BKY001', 30),
-                                                                                  ('Bagel', 'Plain bagel', 2.75, 'Bakery', 'BKY002', 25),
-                                                                                  ('Sandwich', 'Ham and cheese sandwich', 5.00, 'Food', 'FOOD001', 15),
-                                                                                  ('Salad', 'Fresh garden salad', 6.50, 'Food', 'FOOD002', 10),
-                                                                                  ('Muffin', 'Blueberry muffin', 3.25, 'Bakery', 'BKY003', 20),
-                                                                                  ('Soda', 'Assorted sodas', 1.75, 'Beverages', 'BVRG003', 50),
-                                                                                  ('Water', 'Bottled water', 1.50, 'Beverages', 'BVRG004', 60),
-                                                                                  ('Cookie', 'Chocolate chip cookie', 1.75, 'Bakery', 'BKY004', 40);
+INSERT INTO products (name, description, price, category, barcode, stock_quantity)
+VALUES
+    ('Apple', 'Fresh Red Apple', 1.99, 'Fruits', '123456', 50),
+    ('Banana', 'Yellow Banana', 0.99, 'Fruits', '654321', 100),
+    ('Milk', '1L Whole Milk', 2.49, 'Dairy', '111222', 30),
+    ('Bread', 'Whole Wheat Bread', 2.99, 'Bakery', '333444', 20),
+    ('Eggs', 'Pack of 12 Eggs', 3.99, 'Dairy', '555666', 40);
+
+INSERT INTO receipts (date_time, total, tax_amount, cashier_name, payment_method)
+VALUES
+    ('2025-03-14 12:00:00', 10.00, 1.00, 'John Doe', 'Cash'),
+    ('2025-03-14 12:30:00', 15.50, 1.55, 'Jane Smith', 'Credit Card'),
+    ('2025-03-14 13:00:00', 20.75, 2.07, 'Alice Johnson', 'Mobile Payment');
+
+INSERT INTO receipt_items (receipt_id, product_id, product_name, price, quantity, total)
+VALUES
+    (1, 1, 'Apple', 1.99, 2, 3.98),
+    (1, 3, 'Milk', 2.49, 2, 4.98),
+    (2, 2, 'Banana', 0.99, 5, 4.95),
+    (2, 4, 'Bread', 2.99, 3, 8.97),
+    (3, 5, 'Eggs', 3.99, 2, 7.98);

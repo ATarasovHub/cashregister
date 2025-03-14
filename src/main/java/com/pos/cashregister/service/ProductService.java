@@ -2,6 +2,7 @@ package com.pos.cashregister.service;
 
 import com.pos.cashregister.model.Product;
 import com.pos.cashregister.repository.JpaProductRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Log4j2
 public class ProductService {
 
     private final JpaProductRepository productRepository;
@@ -19,7 +21,9 @@ public class ProductService {
     }
 
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        List<Product> products = productRepository.findAll();
+        log.info("Retrieved products: " + products);
+        return products;
     }
 
     public Optional<Product> getProductById(Long id) {

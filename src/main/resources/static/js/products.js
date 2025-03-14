@@ -1,6 +1,4 @@
-// Products Management JavaScript
 
-// DOM Elements
 const productForm = document.getElementById('product-form');
 const productIdInput = document.getElementById('product-id');
 const productNameInput = document.getElementById('product-name');
@@ -13,11 +11,9 @@ const productTable = document.getElementById('products-table');
 const productFormTitle = document.getElementById('product-form-title');
 const cancelEditBtn = document.getElementById('cancel-edit-btn');
 
-// State management
 let isEditing = false;
 let products = [];
 
-// Fetch Products
 async function fetchProducts() {
     try {
         const response = await fetch('/products/api/all');
@@ -31,7 +27,6 @@ async function fetchProducts() {
     }
 }
 
-// Render Products Table
 function renderProductsTable() {
     const tableBody = productTable.querySelector('tbody');
     tableBody.innerHTML = '';
@@ -62,7 +57,6 @@ function renderProductsTable() {
         tableBody.appendChild(row);
     });
 
-    // Add event listeners to edit and delete buttons
     document.querySelectorAll('.edit-btn').forEach(btn => {
         btn.addEventListener('click', () => editProduct(btn.dataset.id));
     });
@@ -72,7 +66,7 @@ function renderProductsTable() {
     });
 }
 
-// Submit Product Form
+
 async function submitProductForm(event) {
     event.preventDefault();
 
@@ -85,7 +79,6 @@ async function submitProductForm(event) {
         stockQuantity: parseInt(productStockInput.value, 10)
     };
 
-    // Validation
     if (!productData.name) {
         showToast('Product name is required', 'error');
         return;
@@ -138,7 +131,6 @@ async function submitProductForm(event) {
     }
 }
 
-// Edit Product
 function editProduct(productId) {
     const product = products.find(p => p.id === productId);
 
@@ -155,12 +147,10 @@ function editProduct(productId) {
         isEditing = true;
         cancelEditBtn.style.display = 'inline-block';
 
-        // Scroll to form
         productForm.scrollIntoView({ behavior: 'smooth' });
     }
 }
 
-// Delete Product
 async function deleteProduct(productId) {
     if (!confirm('Are you sure you want to delete this product?')) {
         return;
@@ -182,7 +172,6 @@ async function deleteProduct(productId) {
     }
 }
 
-// Reset Form
 function resetForm() {
     productForm.reset();
     productIdInput.value = '';
@@ -191,7 +180,6 @@ function resetForm() {
     cancelEditBtn.style.display = 'none';
 }
 
-// Toast Notification
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
@@ -199,7 +187,6 @@ function showToast(message, type = 'success') {
 
     document.body.appendChild(toast);
 
-    // Trigger reflow
     toast.offsetHeight;
 
     toast.classList.add('show');
@@ -212,7 +199,6 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
 

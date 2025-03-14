@@ -1,6 +1,4 @@
-// POS System JavaScript
 
-// DOM Elements
 const productsGrid = document.getElementById('products-grid');
 const cartItemsContainer = document.getElementById('cart-items');
 const subtotalElement = document.getElementById('subtotal');
@@ -15,12 +13,10 @@ const receiptModalCloseBtn = document.getElementById('receipt-modal-close');
 const printReceiptBtn = document.getElementById('print-receipt-btn');
 const receiptContent = document.getElementById('receipt-content');
 
-// State Management
 let products = [];
 let cartItems = [];
 const TAX_RATE = 0.10; // 10% tax rate
 
-// Fetch Products
 async function fetchProducts() {
     try {
         const response = await fetch('/products/api/all');
@@ -34,7 +30,6 @@ async function fetchProducts() {
     }
 }
 
-// Render Products
 function renderProducts() {
     productsGrid.innerHTML = '';
 
@@ -55,7 +50,6 @@ function renderProducts() {
     });
 }
 
-// Add Product to Cart
 function addToCart(product) {
     if (product.stockQuantity <= 0) {
         showToast('Product is out of stock', 'error');
@@ -85,7 +79,6 @@ function addToCart(product) {
     showToast('Product added to cart');
 }
 
-// Update Cart Item Quantity
 function updateCartItemQuantity(productId, change) {
     const itemIndex = cartItems.findIndex(item => item.productId === productId);
 
@@ -105,13 +98,11 @@ function updateCartItemQuantity(productId, change) {
     }
 }
 
-// Remove Item from Cart
 function removeCartItem(productId) {
     cartItems = cartItems.filter(item => item.productId !== productId);
     renderCart();
 }
 
-// Render Cart
 function renderCart() {
     cartItemsContainer.innerHTML = '';
 
@@ -147,7 +138,6 @@ function renderCart() {
         cartItemsContainer.appendChild(cartItemElement);
     });
 
-    // Add event listeners for quantity buttons
     document.querySelectorAll('.quantity-btn.decrease').forEach(btn => {
         btn.addEventListener('click', () => updateCartItemQuantity(btn.dataset.id, -1));
     });
@@ -160,7 +150,6 @@ function renderCart() {
         btn.addEventListener('click', () => removeCartItem(btn.dataset.id));
     });
 
-    // Calculate totals
     const tax = subtotal * TAX_RATE;
     const total = subtotal + tax;
 
@@ -171,7 +160,6 @@ function renderCart() {
     enableCheckout();
 }
 
-// Enable/Disable Checkout Button
 function enableCheckout() {
     checkoutBtn.disabled = false;
 }
@@ -180,13 +168,11 @@ function disableCheckout() {
     checkoutBtn.disabled = true;
 }
 
-// Clear Cart
 function clearCart() {
     cartItems = [];
     renderCart();
 }
 
-// Process Checkout
 async function processCheckout() {
     if (cartItems.length === 0) {
         showToast('Cart is empty', 'warning');
@@ -232,13 +218,10 @@ async function processCheckout() {
     }
 }
 
-// Show Receipt
 function showReceipt(receipt) {
-    // Format the receipt date
     const receiptDate = new Date(receipt.dateTime);
     const formattedDate = receiptDate.toLocaleDateString() + ' ' + receiptDate.toLocaleTimeString();
 
-    // Generate receipt items HTML
     let itemsHtml = '';
     receipt.items.forEach(item => {
         itemsHtml += `
@@ -251,7 +234,6 @@ function showReceipt(receipt) {
         `;
     });
 
-    // Generate receipt HTML
     receiptContent.innerHTML = `
         <div class="receipt-preview">
             <div class="receipt-header">
@@ -290,11 +272,9 @@ function showReceipt(receipt) {
         </div>
     `;
 
-    // Show the modal
     receiptModalBackdrop.classList.add('show');
 }
 
-// Print Receipt
 function printReceipt() {
     const printWindow = window.open('', '_blank');
     printWindow.document.write('<html><head><title>Receipt</title>');
@@ -314,14 +294,12 @@ function printReceipt() {
     printWindow.document.write('</body></html>');
     printWindow.document.close();
 
-    // Wait for the content to load and then print
     setTimeout(() => {
         printWindow.print();
         printWindow.close();
     }, 250);
 }
 
-// Toast Notification
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
@@ -329,7 +307,6 @@ function showToast(message, type = 'success') {
 
     document.body.appendChild(toast);
 
-    // Trigger reflow
     toast.offsetHeight;
 
     toast.classList.add('show');
@@ -342,7 +319,6 @@ function showToast(message, type = 'success') {
     }, 3000);
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     fetchProducts();
 
@@ -355,7 +331,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     printReceiptBtn.addEventListener('click', printReceipt);
 
-    // Close modal when clicking outside
     receiptModalBackdrop.addEventListener('click', (event) => {
         if (event.target === receiptModalBackdrop) {
             receiptModalBackdrop.classList.remove('show');
