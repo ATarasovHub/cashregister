@@ -79,18 +79,27 @@ function addToCart(product) {
 }
 
 function updateCartItemQuantity(productId, change) {
+    // Convert productId to number if it's a string
+    productId = Number(productId);
+    
     const itemIndex = cartItems.findIndex(item => item.productId === productId);
+    console.log('Updating quantity for product:', productId, 'change:', change, 'found at index:', itemIndex);
 
     if (itemIndex !== -1) {
         const item = cartItems[itemIndex];
         const newQuantity = item.quantity + change;
+        console.log('Current quantity:', item.quantity, 'New quantity:', newQuantity, 'Max:', item.maxQuantity);
 
         if (newQuantity > 0 && newQuantity <= item.maxQuantity) {
             item.quantity = newQuantity;
             renderCart();
+            showToast(`Updated ${item.productName} quantity to ${newQuantity}`);
         } else if (newQuantity <= 0) {
-            cartItems.splice(itemIndex, 1);
-            renderCart();
+            if (confirm('Remove item from cart?')) {
+                cartItems.splice(itemIndex, 1);
+                renderCart();
+                showToast(`Removed ${item.productName} from cart`);
+            }
         } else {
             showToast('Cannot add more of this product - stock limit reached', 'warning');
         }
@@ -98,8 +107,13 @@ function updateCartItemQuantity(productId, change) {
 }
 
 function removeCartItem(productId) {
-    cartItems = cartItems.filter(item => item.productId !== productId);
-    renderCart();
+    const itemIndex = cartItems.findIndex(item => item.productId === productId);
+    if (itemIndex !== -1) {
+        const item = cartItems[itemIndex];
+        cartItems.splice(itemIndex, 1);
+        renderCart();
+        showToast(`Removed ${item.productName} from cart`);
+    }
 }
 
 function renderCart() {
@@ -123,7 +137,7 @@ function renderCart() {
         cartItemElement.innerHTML = `
             <div class="cart-item-info">
                 <div class="item-name">${item.productName}</div>
-                <div class="item-price">$${parseFloat(item.price).toFixed(2)}</div>
+                <div class="item-price">$${parseFloat(item.price).toFixed(2)} × ${item.quantity}</div>
             </div>
             <div class="quantity-controls">
                 <button class="quantity-btn decrease" data-id="${item.productId}">-</button>
@@ -142,18 +156,23 @@ function renderCart() {
         const removeBtn = cartItemElement.querySelector('.remove-btn');
 
         decreaseBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
-            updateCartItemQuantity(parseInt(item.productId), -1);
+            updateCartItemQuantity(e.target.dataset.id, -1);
         });
 
         increaseBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
-            updateCartItemQuantity(parseInt(item.productId), 1);
+            updateCartItemQuantity(e.target.dataset.id, 1);
         });
 
         removeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             e.stopPropagation();
-            removeCartItem(parseInt(item.productId));
+            if (confirm('Remove item from cart?')) {
+                removeCartItem(Number(e.target.dataset.id));
+            }
         });
     });
 
