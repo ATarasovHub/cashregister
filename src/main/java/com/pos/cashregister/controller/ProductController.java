@@ -20,7 +20,8 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public String getProductsPage() {
+    public String getProductsPage(Model model) {
+        model.addAttribute("products", productService.getAllProducts());
         return "products";
     }
 

@@ -86,8 +86,20 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                  <td colspan="7" class="text-center">Loading products...</td>
+                <tr th:if="${#lists.isEmpty(products)}">
+                  <td colspan="7" class="text-center">No products found. Add some products to get started.</td>
+                </tr>
+                <tr th:each="product : ${products}">
+                  <td th:text="${product.name}"></td>
+                  <td th:text="${product.description ?: '-'}"></td>
+                  <td th:text="${'$' + #numbers.formatDecimal(product.price, 1, 2)}"></td>
+                  <td th:text="${product.category ?: '-'}"></td>
+                  <td th:text="${product.barcode ?: '-'}"></td>
+                  <td th:text="${product.stockQuantity}"></td>
+                  <td>
+                    <button class="btn btn-sm btn-secondary edit-btn" th:data-id="${product.id}">Edit</button>
+                    <button class="btn btn-sm btn-danger delete-btn" th:data-id="${product.id}">Delete</button>
+                  </td>
                 </tr>
                 </tbody>
               </table>

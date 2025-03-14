@@ -19,8 +19,9 @@ public class CashRegisterApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("https://*.repl.co")
+                        .allowedOrigins("http://localhost:5000", "http://localhost:8080", "https://*.repl.co")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
                         .allowCredentials(true);
             }
         };
