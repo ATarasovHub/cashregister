@@ -1,4 +1,3 @@
-
 const productsGrid = document.getElementById('products-grid');
 const cartItemsContainer = document.getElementById('cart-items');
 const subtotalElement = document.getElementById('subtotal');
@@ -61,9 +60,10 @@ function addToCart(product) {
     if (existingItem) {
         if (existingItem.quantity < product.stockQuantity) {
             existingItem.quantity += 1;
+            renderCart();
+            showToast(`Added ${product.name} to cart`);
         } else {
             showToast('Cannot add more of this product - stock limit reached', 'warning');
-            return;
         }
     } else {
         cartItems.push({
@@ -73,28 +73,27 @@ function addToCart(product) {
             quantity: 1,
             maxQuantity: product.stockQuantity
         });
+        renderCart();
+        showToast(`Added ${product.name} to cart`);
     }
-
-    renderCart();
-    showToast('Product added to cart');
 }
 
 function updateCartItemQuantity(productId, change) {
     const itemIndex = cartItems.findIndex(item => item.productId === productId);
 
     if (itemIndex !== -1) {
-        const newQuantity = cartItems[itemIndex].quantity + change;
+        const item = cartItems[itemIndex];
+        const newQuantity = item.quantity + change;
 
-        if (newQuantity > 0 && newQuantity <= cartItems[itemIndex].maxQuantity) {
-            cartItems[itemIndex].quantity = newQuantity;
+        if (newQuantity > 0 && newQuantity <= item.maxQuantity) {
+            item.quantity = newQuantity;
+            renderCart();
         } else if (newQuantity <= 0) {
             cartItems.splice(itemIndex, 1);
+            renderCart();
         } else {
             showToast('Cannot add more of this product - stock limit reached', 'warning');
-            return;
         }
-
-        renderCart();
     }
 }
 
@@ -122,32 +121,40 @@ function renderCart() {
         cartItemElement.className = 'cart-item';
 
         cartItemElement.innerHTML = `
-            <div class="item-details">
-                <div class="item-title">${item.productName}</div>
-                <div class="item-price">$${parseFloat(item.price).toFixed(2)} x ${item.quantity}</div>
+            <div class="cart-item-info">
+                <div class="item-name">${item.productName}</div>
+                <div class="item-price">$${parseFloat(item.price).toFixed(2)}</div>
             </div>
-            <div class="item-quantity">
+            <div class="quantity-controls">
                 <button class="quantity-btn decrease" data-id="${item.productId}">-</button>
-                <span class="quantity-value">${item.quantity}</span>
+                <span>${item.quantity}</span>
                 <button class="quantity-btn increase" data-id="${item.productId}">+</button>
             </div>
             <div class="item-total">$${itemTotal.toFixed(2)}</div>
-            <button class="btn-delete" data-id="${item.productId}">×</button>
+            <button class="remove-btn" data-id="${item.productId}">×</button>
         `;
 
         cartItemsContainer.appendChild(cartItemElement);
-    });
 
-    document.querySelectorAll('.quantity-btn.decrease').forEach(btn => {
-        btn.addEventListener('click', () => updateCartItemQuantity(btn.dataset.id, -1));
-    });
+        // Add event listeners
+        const decreaseBtn = cartItemElement.querySelector('.quantity-btn.decrease');
+        const increaseBtn = cartItemElement.querySelector('.quantity-btn.increase');
+        const removeBtn = cartItemElement.querySelector('.remove-btn');
 
-    document.querySelectorAll('.quantity-btn.increase').forEach(btn => {
-        btn.addEventListener('click', () => updateCartItemQuantity(btn.dataset.id, 1));
-    });
+        decreaseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateCartItemQuantity(parseInt(item.productId), -1);
+        });
 
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', () => removeCartItem(btn.dataset.id));
+        increaseBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            updateCartItemQuantity(parseInt(item.productId), 1);
+        });
+
+        removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            removeCartItem(parseInt(item.productId));
+        });
     });
 
     const tax = subtotal * TAX_RATE;
