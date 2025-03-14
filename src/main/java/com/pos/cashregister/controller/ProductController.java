@@ -2,7 +2,7 @@ package com.pos.cashregister.controller;
 
 import com.pos.cashregister.model.Product;
 import com.pos.cashregister.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,14 +14,10 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
-
-    @Autowired
-    public ProductController(ProductService productService) {
-        this.productService = productService;
-    }
 
     @GetMapping
     public String getProductsPage(Model model) {
@@ -54,7 +50,6 @@ public class ProductController {
     @ResponseBody
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
         Optional<Product> existingProduct = productService.getProductById(id);
-
         if (existingProduct.isPresent()) {
             product.setId(id);
             Product updatedProduct = productService.saveProduct(product);
@@ -68,7 +63,6 @@ public class ProductController {
     @ResponseBody
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
         Optional<Product> existingProduct = productService.getProductById(id);
-
         if (existingProduct.isPresent()) {
             productService.deleteProduct(id);
             return ResponseEntity.noContent().build();
@@ -77,4 +71,3 @@ public class ProductController {
         }
     }
 }
-

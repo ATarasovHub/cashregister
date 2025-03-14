@@ -35,10 +35,4 @@ public class ReceiptItem {
 
     @Column(nullable = false)
     private BigDecimal total;
-
-    private void recalculateTotal() {
-        if (price != null) {
-            this.total = price.multiply(BigDecimal.valueOf(quantity)).setScale(2, BigDecimal.ROUND_HALF_UP);
-        }
-    }
 }

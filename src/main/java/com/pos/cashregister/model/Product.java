@@ -12,7 +12,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @Getter
 @Setter
-
+@AllArgsConstructor
+@Builder
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,13 +34,4 @@ public class Product {
 
     private int stockQuantity;
 
-
-    public Product(String name, String description, BigDecimal price, String category, String barcode, int stockQuantity) {
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.category = category;
-        this.barcode = barcode;
-        this.stockQuantity = stockQuantity;
-    }
 }

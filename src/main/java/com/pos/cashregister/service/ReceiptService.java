@@ -6,26 +6,22 @@ import com.pos.cashregister.model.Product;
 import com.pos.cashregister.model.Receipt;
 import com.pos.cashregister.model.ReceiptItem;
 import com.pos.cashregister.repository.JpaReceiptRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ReceiptService {
 
     private final JpaReceiptRepository receiptRepository;
     private final ProductService productService;
-
-    @Autowired
-    public ReceiptService(JpaReceiptRepository receiptRepository, ProductService productService) {
-        this.receiptRepository = receiptRepository;
-        this.productService = productService;
-    }
 
     public List<Receipt> getAllReceipts() {
         return receiptRepository.findAll();
@@ -40,11 +36,12 @@ public class ReceiptService {
         Receipt receipt = new Receipt();
         receipt.setCashierName(receiptDTO.getCashierName());
         receipt.setPaymentMethod(receiptDTO.getPaymentMethod());
+        receipt.setDateTime(LocalDateTime.now());
 
         List<ReceiptItem> items = new ArrayList<>();
         boolean allProductsAvailable = true;
 
-        // First, check if all products are available in the required quantities
+        // Check if all products are available in the required quantity
         for (ReceiptItemDTO itemDTO : receiptDTO.getItems()) {
             if (!productService.isProductAvailable(itemDTO.getProductId(), itemDTO.getQuantity())) {
                 allProductsAvailable = false;
@@ -56,25 +53,37 @@ public class ReceiptService {
             throw new RuntimeException("One or more products are not available in the required quantity");
         }
 
-
+        // Build receipt items and update product stock
         for (ReceiptItemDTO itemDTO : receiptDTO.getItems()) {
             Optional<Product> productOpt = productService.getProductById(itemDTO.getProductId());
-
             if (productOpt.isPresent()) {
                 Product product = productOpt.get();
                 ReceiptItem item = ReceiptItem.builder()
-                        .id(product.getId())
+                        .productId(product.getId())
                         .productName(product.getName())
                         .price(product.getPrice())
                         .quantity(itemDTO.getQuantity())
+                        .total(product.getPrice()
+                                .multiply(BigDecimal.valueOf(itemDTO.getQuantity()))
+                                .setScale(2, BigDecimal.ROUND_HALF_UP))
                         .build();
-
+                items.add(item);
                 productService.updateStock(product.getId(), itemDTO.getQuantity());
             }
         }
 
         receipt.setItems(items);
-        receipt.calculateTotal();
+
+        // Calculate subtotal, tax (10%) and total
+        BigDecimal subtotal = BigDecimal.ZERO;
+        for (ReceiptItem item : items) {
+            subtotal = subtotal.add(item.getTotal());
+        }
+        BigDecimal taxAmount = subtotal.multiply(new BigDecimal("0.10")).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal total = subtotal.add(taxAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
+
+        receipt.setTaxAmount(taxAmount);
+        receipt.setTotal(total);
 
         return receiptRepository.save(receipt);
     }
@@ -94,5 +103,3 @@ public class ReceiptService {
         return receiptRepository.findAll();
     }
 }
-
-

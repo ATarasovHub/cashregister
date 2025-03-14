@@ -3,7 +3,7 @@ package com.pos.cashregister.controller;
 import com.pos.cashregister.dto.ReceiptDTO;
 import com.pos.cashregister.model.Receipt;
 import com.pos.cashregister.service.ReceiptService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,14 +15,10 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("/receipts")
+@RequiredArgsConstructor
 public class ReceiptController {
 
     private final ReceiptService receiptService;
-
-    @Autowired
-    public ReceiptController(ReceiptService receiptService) {
-        this.receiptService = receiptService;
-    }
 
     @GetMapping
     public String getReceiptsPage(Model model) {
@@ -61,7 +57,6 @@ public class ReceiptController {
     @ResponseBody
     public ResponseEntity<Void> deleteReceipt(@PathVariable Long id) {
         Optional<Receipt> existingReceipt = receiptService.getReceiptById(id);
-
         if (existingReceipt.isPresent()) {
             receiptService.deleteReceipt(id);
             return ResponseEntity.noContent().build();
@@ -70,4 +65,3 @@ public class ReceiptController {
         }
     }
 }
-

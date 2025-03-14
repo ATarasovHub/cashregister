@@ -37,18 +37,5 @@ public class Receipt {
     private String cashierName;
 
     private String paymentMethod;
-
-    public void calculateTotal() {
-        BigDecimal subtotal = BigDecimal.ZERO;
-        for (ReceiptItem item : items) {
-            subtotal = subtotal.add(item.getTotal());
-        }
-
-        // Assuming tax rate of 10% for example
-        this.taxAmount = subtotal.multiply(new BigDecimal("0.10")).setScale(2, BigDecimal.ROUND_HALF_UP);
-        this.total = subtotal.add(taxAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
-    }
-
-
 }
 
