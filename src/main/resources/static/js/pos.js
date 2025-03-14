@@ -79,9 +79,8 @@ function addToCart(product) {
 }
 
 function updateCartItemQuantity(productId, change) {
-    // Convert productId to number if it's a string
     productId = Number(productId);
-    
+
     const itemIndex = cartItems.findIndex(item => item.productId === productId);
     console.log('Updating quantity for product:', productId, 'change:', change, 'found at index:', itemIndex);
 
@@ -247,7 +246,7 @@ async function processCheckout() {
         clearCart();
         fetchProducts(); // Refresh products to get updated stock
         showToast('Checkout successful!', 'success');
-        
+
         // Clear the form
         document.getElementById('cashier-name').value = '';
         document.getElementById('payment-method').selectedIndex = 0;
@@ -268,7 +267,7 @@ function showReceipt(receipt) {
                 <div class="item-name">${item.productName}</div>
                 <div class="item-quantity">${item.quantity}</div>
                 <div class="item-price">$${parseFloat(item.price).toFixed(2)}</div>
-                <div class="item-total">$${parseFloat(item.total).toFixed(2)}</div>
+                <div class="item-total">$${(item.price * item.quantity).toFixed(2)}</div>
             </div>
         `;
     });
@@ -294,15 +293,15 @@ function showReceipt(receipt) {
             <div class="receipt-total">
                 <div class="receipt-total-row">
                     <div>Subtotal:</div>
-                    <div>$${(parseFloat(receipt.total) - parseFloat(receipt.taxAmount)).toFixed(2)}</div>
+                    <div>$${(receipt.total - receipt.taxAmount).toFixed(2)}</div>
                 </div>
                 <div class="receipt-total-row">
                     <div>Tax (10%):</div>
-                    <div>$${parseFloat(receipt.taxAmount).toFixed(2)}</div>
+                    <div>$${receipt.taxAmount.toFixed(2)}</div>
                 </div>
                 <div class="receipt-total-row total-amount">
                     <div><strong>Total:</strong></div>
-                    <div><strong>$${parseFloat(receipt.total).toFixed(2)}</strong></div>
+                    <div><strong>$${receipt.total.toFixed(2)}</strong></div>
                 </div>
             </div>
             <div class="receipt-footer">
@@ -311,7 +310,13 @@ function showReceipt(receipt) {
         </div>
     `;
 
-    receiptModal.classList.add('show');
+    if (receiptModal) {
+        receiptModal.style.display = 'block';
+        receiptModal.classList.add('show');
+    } else {
+        console.error('Receipt modal element not found');
+        showToast('Could not display receipt', 'error');
+    }
 }
 
 function printReceipt() {
@@ -364,15 +369,22 @@ document.addEventListener('DOMContentLoaded', () => {
     checkoutBtn.addEventListener('click', processCheckout);
     clearCartBtn.addEventListener('click', clearCart);
 
-    receiptModalCloseBtn.addEventListener('click', () => {
-        receiptModal.classList.remove('show');
-    });
-
-    printReceiptBtn.addEventListener('click', printReceipt);
-
-    receiptModal.addEventListener('click', (event) => {
-        if (event.target === receiptModal) {
+    if (receiptModal && receiptModalCloseBtn) {
+        receiptModalCloseBtn.addEventListener('click', () => {
+            receiptModal.style.display = 'none';
             receiptModal.classList.remove('show');
-        }
-    });
+        });
+
+        receiptModal.addEventListener('click', (event) => {
+            if (event.target === receiptModal) {
+                receiptModal.style.display = 'none';
+                receiptModal.classList.remove('show');
+            }
+        });
+    }
+
+
+    if (printReceiptBtn) {
+        printReceiptBtn.addEventListener('click', printReceipt);
+    }
 });

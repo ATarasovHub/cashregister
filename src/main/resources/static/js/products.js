@@ -131,7 +131,6 @@ async function submitProductForm(event) {
 }
 
 function editProduct(productId) {
-    // Convert productId to number since it comes from data-id attribute as string
     productId = Number(productId);
     const product = products.find(p => p.id === productId);
 
@@ -149,7 +148,6 @@ function editProduct(productId) {
         cancelEditBtn.style.display = 'inline-block';
         productNameInput.focus();
 
-        // Scroll to form
         productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
         showToast('Product not found', 'error');
@@ -157,7 +155,6 @@ function editProduct(productId) {
 }
 
 async function deleteProduct(productId) {
-    // Convert productId to number since it comes from data-id attribute as string
     productId = Number(productId);
     
     if (!confirm('Are you sure you want to delete this product?')) {
@@ -175,7 +172,7 @@ async function deleteProduct(productId) {
         }
 
         showToast('Product deleted successfully', 'success');
-        fetchProducts(); // Refresh the products list
+        fetchProducts();
     } catch (error) {
         showToast('Error: ' + error.message, 'error');
         console.error('Delete error:', error);
