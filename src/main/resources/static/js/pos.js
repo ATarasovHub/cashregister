@@ -205,15 +205,23 @@ async function processCheckout() {
         return;
     }
 
-    const cashierName = cashierNameInput.value.trim();
+    const cashierName = document.getElementById('cashier-name').value.trim();
     if (!cashierName) {
         showToast('Please enter cashier name', 'warning');
+        document.getElementById('cashier-name').focus();
+        return;
+    }
+
+    const paymentMethod = document.getElementById('payment-method').value;
+    if (!paymentMethod) {
+        showToast('Please select payment method', 'warning');
+        document.getElementById('payment-method').focus();
         return;
     }
 
     const receiptData = {
         cashierName: cashierName,
-        paymentMethod: paymentMethodSelect.value,
+        paymentMethod: paymentMethod,
         items: cartItems.map(item => ({
             productId: item.productId,
             quantity: item.quantity
@@ -238,9 +246,14 @@ async function processCheckout() {
         showReceipt(receipt);
         clearCart();
         fetchProducts(); // Refresh products to get updated stock
-        showToast('Checkout successful!');
+        showToast('Checkout successful!', 'success');
+        
+        // Clear the form
+        document.getElementById('cashier-name').value = '';
+        document.getElementById('payment-method').selectedIndex = 0;
     } catch (error) {
         showToast('Error: ' + error.message, 'error');
+        console.error('Checkout error:', error);
     }
 }
 
