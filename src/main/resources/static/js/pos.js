@@ -7,8 +7,8 @@ const checkoutBtn = document.getElementById('checkout-btn');
 const clearCartBtn = document.getElementById('clear-cart-btn');
 const cashierNameInput = document.getElementById('cashier-name');
 const paymentMethodSelect = document.getElementById('payment-method');
-const receiptModalBackdrop = document.getElementById('receipt-modal-backdrop');
-const receiptModalCloseBtn = document.getElementById('receipt-modal-close');
+const receiptModal = document.getElementById('receipt-modal');
+const receiptModalCloseBtn = document.querySelector('#receipt-modal .close-btn');
 const printReceiptBtn = document.getElementById('print-receipt-btn');
 const receiptContent = document.getElementById('receipt-content');
 
@@ -311,7 +311,7 @@ function showReceipt(receipt) {
         </div>
     `;
 
-    receiptModalBackdrop.classList.add('show');
+    receiptModal.classList.add('show');
 }
 
 function printReceipt() {
@@ -365,14 +365,14 @@ document.addEventListener('DOMContentLoaded', () => {
     clearCartBtn.addEventListener('click', clearCart);
 
     receiptModalCloseBtn.addEventListener('click', () => {
-        receiptModalBackdrop.classList.remove('show');
+        receiptModal.classList.remove('show');
     });
 
     printReceiptBtn.addEventListener('click', printReceipt);
 
-    receiptModalBackdrop.addEventListener('click', (event) => {
-        if (event.target === receiptModalBackdrop) {
-            receiptModalBackdrop.classList.remove('show');
+    receiptModal.addEventListener('click', (event) => {
+        if (event.target === receiptModal) {
+            receiptModal.classList.remove('show');
         }
     });
 });
