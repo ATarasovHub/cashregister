@@ -1,4 +1,3 @@
-
 const productForm = document.getElementById('product-form');
 const productIdInput = document.getElementById('product-id');
 const productNameInput = document.getElementById('product-name');
@@ -132,6 +131,8 @@ async function submitProductForm(event) {
 }
 
 function editProduct(productId) {
+    // Convert productId to number since it comes from data-id attribute as string
+    productId = Number(productId);
     const product = products.find(p => p.id === productId);
 
     if (product) {
@@ -146,12 +147,19 @@ function editProduct(productId) {
         productFormTitle.textContent = 'Edit Product';
         isEditing = true;
         cancelEditBtn.style.display = 'inline-block';
+        productNameInput.focus();
 
-        productForm.scrollIntoView({ behavior: 'smooth' });
+        // Scroll to form
+        productForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        showToast('Product not found', 'error');
     }
 }
 
 async function deleteProduct(productId) {
+    // Convert productId to number since it comes from data-id attribute as string
+    productId = Number(productId);
+    
     if (!confirm('Are you sure you want to delete this product?')) {
         return;
     }
@@ -162,13 +170,15 @@ async function deleteProduct(productId) {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to delete product');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to delete product');
         }
 
-        showToast('Product deleted successfully');
-        fetchProducts();
+        showToast('Product deleted successfully', 'success');
+        fetchProducts(); // Refresh the products list
     } catch (error) {
         showToast('Error: ' + error.message, 'error');
+        console.error('Delete error:', error);
     }
 }
 
