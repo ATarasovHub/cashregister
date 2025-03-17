@@ -295,10 +295,9 @@ function showReceipt(receipt) {
     receipt.items.forEach(item => {
         itemsHtml += `
             <div class="receipt-item">
-                <div class="item-name">${item.productName}</div>
-                <div class="item-quantity">${item.quantity}</div>
-                <div class="item-price">$${parseFloat(item.price).toFixed(2)}</div>
-                <div class="item-total">$${(item.price * item.quantity).toFixed(2)}</div>
+                <div>${item.productName}</div>
+                <div>${item.quantity} x $${parseFloat(item.price).toFixed(2)}</div>
+                <div>$${(item.price * item.quantity).toFixed(2)}</div>
             </div>
         `;
     });
@@ -306,7 +305,7 @@ function showReceipt(receipt) {
     receiptContent.innerHTML = `
         <div class="receipt-preview">
             <div class="receipt-header">
-                <h2>POS System Receipt</h2>
+                <h2>Store Receipt</h2>
                 <div class="receipt-id">Receipt #${receipt.id}</div>
                 <div class="receipt-date">${formattedDate}</div>
                 <div class="receipt-cashier">Cashier: ${receipt.cashierName}</div>
@@ -315,30 +314,15 @@ function showReceipt(receipt) {
                 <div class="receipt-change">Change: $${receipt.change.toFixed(2)}</div>
             </div>
             <div class="receipt-items">
-                <div class="receipt-item receipt-header-row">
-                    <div class="item-name"><strong>Item</strong></div>
-                    <div class="item-quantity"><strong>Qty</strong></div>
-                    <div class="item-price"><strong>Price</strong></div>
-                    <div class="item-total"><strong>Total</strong></div>
-                </div>
                 ${itemsHtml}
             </div>
             <div class="receipt-total">
-                <div class="receipt-total-row">
-                    <div>Subtotal:</div>
-                    <div>$${(receipt.total - receipt.taxAmount).toFixed(2)}</div>
-                </div>
-                <div class="receipt-total-row">
-                    <div>Tax (10%):</div>
-                    <div>$${receipt.taxAmount.toFixed(2)}</div>
-                </div>
-                <div class="receipt-total-row total-amount">
-                    <div><strong>Total:</strong></div>
-                    <div><strong>$${receipt.total.toFixed(2)}</strong></div>
-                </div>
+                Subtotal: $${(receipt.total - receipt.taxAmount).toFixed(2)}<br>
+                Tax (10%): $${receipt.taxAmount.toFixed(2)}<br>
+                Total: $${receipt.total.toFixed(2)}
             </div>
             <div class="receipt-footer">
-                Thank you for your purchase!
+                Thank you for shopping with us!
             </div>
         </div>
     `;
@@ -351,6 +335,7 @@ function showReceipt(receipt) {
         showToast('Could not display receipt', 'error');
     }
 }
+
 
 
 function printReceipt() {
