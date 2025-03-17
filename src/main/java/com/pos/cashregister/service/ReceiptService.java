@@ -1,7 +1,5 @@
 package com.pos.cashregister.service;
 
-import com.pos.cashregister.dto.ReceiptDTO;
-import com.pos.cashregister.dto.ReceiptItemDTO;
 import com.pos.cashregister.model.Product;
 import com.pos.cashregister.model.Receipt;
 import com.pos.cashregister.model.ReceiptItem;
@@ -32,49 +30,34 @@ public class ReceiptService {
     }
 
     @Transactional
-    public Receipt createReceipt(ReceiptDTO receiptDTO) {
+    public Receipt createReceipt(Receipt incomingReceipt) {
         Receipt receipt = new Receipt();
-        receipt.setCashierName(receiptDTO.getCashierName());
-        receipt.setPaymentMethod(receiptDTO.getPaymentMethod());
+        receipt.setCashierName(incomingReceipt.getCashierName());
+        receipt.setPaymentMethod(incomingReceipt.getPaymentMethod());
         receipt.setDateTime(LocalDateTime.now());
 
         List<ReceiptItem> items = new ArrayList<>();
-        boolean allProductsAvailable = true;
-
-        // Check if all products are available in the required quantity
-        for (ReceiptItemDTO itemDTO : receiptDTO.getItems()) {
-            if (!productService.isProductAvailable(itemDTO.getProductId(), itemDTO.getQuantity())) {
-                allProductsAvailable = false;
-                break;
-            }
-        }
-
-        if (!allProductsAvailable) {
-            throw new RuntimeException("One or more products are not available in the required quantity");
-        }
-
-        // Build receipt items and update product stock
-        for (ReceiptItemDTO itemDTO : receiptDTO.getItems()) {
-            Optional<Product> productOpt = productService.getProductById(itemDTO.getProductId());
+        // Формируем позиции чека на основании переданных items (в которых заданы только productId и quantity)
+        incomingReceipt.getItems().forEach(item -> {
+            Optional<Product> productOpt = productService.getProductById(item.getProductId());
             if (productOpt.isPresent()) {
                 Product product = productOpt.get();
-                ReceiptItem item = ReceiptItem.builder()
+                ReceiptItem newItem = ReceiptItem.builder()
                         .productId(product.getId())
                         .productName(product.getName())
                         .price(product.getPrice())
-                        .quantity(itemDTO.getQuantity())
+                        .quantity(item.getQuantity())
                         .total(product.getPrice()
-                                .multiply(BigDecimal.valueOf(itemDTO.getQuantity()))
+                                .multiply(BigDecimal.valueOf(item.getQuantity()))
                                 .setScale(2, BigDecimal.ROUND_HALF_UP))
                         .build();
-                items.add(item);
-                productService.updateStock(product.getId(), itemDTO.getQuantity());
+                items.add(newItem);
+                productService.updateStock(product.getId(), item.getQuantity());
             }
-        }
-
+        });
         receipt.setItems(items);
 
-        // Calculate subtotal, tax (10%) and total
+        // Рассчитываем subtotal, tax (10%) и total
         BigDecimal subtotal = BigDecimal.ZERO;
         for (ReceiptItem item : items) {
             subtotal = subtotal.add(item.getTotal());
@@ -84,6 +67,10 @@ public class ReceiptService {
 
         receipt.setTaxAmount(taxAmount);
         receipt.setTotal(total);
+
+        // Сохраняем значения, переданные с клиента
+        receipt.setPaymentReceived(incomingReceipt.getPaymentReceived());
+        receipt.setChangeAmount(incomingReceipt.getChangeAmount());
 
         return receiptRepository.save(receipt);
     }

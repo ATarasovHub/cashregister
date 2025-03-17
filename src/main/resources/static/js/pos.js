@@ -120,6 +120,9 @@ function renderCart() {
 
     if (cartItems.length === 0) {
         cartItemsContainer.innerHTML = '<div class="empty-cart">Cart is empty</div>';
+        subtotalElement.textContent = '$0.00';
+        taxElement.textContent = '$0.00';
+        totalElement.textContent = '$0.00';
         disableCheckout();
         return;
     }
@@ -149,7 +152,7 @@ function renderCart() {
 
         cartItemsContainer.appendChild(cartItemElement);
 
-        // Add event listeners
+        // Event listeners for quantity controls and removal
         const decreaseBtn = cartItemElement.querySelector('.quantity-btn.decrease');
         const increaseBtn = cartItemElement.querySelector('.quantity-btn.increase');
         const removeBtn = cartItemElement.querySelector('.remove-btn');
@@ -185,6 +188,7 @@ function renderCart() {
     enableCheckout();
 }
 
+
 function enableCheckout() {
     checkoutBtn.disabled = false;
 }
@@ -218,7 +222,6 @@ async function processCheckout() {
         return;
     }
 
-    // Новая валидация: сумма оплаты
     const paymentReceivedInput = document.getElementById('payment-received');
     const paymentReceivedValue = paymentReceivedInput.value.trim();
     if (!paymentReceivedValue) {
@@ -233,7 +236,6 @@ async function processCheckout() {
         return;
     }
 
-    // Получаем текущую сумму заказа (без символа $)
     const total = parseFloat(totalElement.textContent.replace('$', ''));
     if (paymentReceived < total) {
         showToast(`Insufficient payment. Total is $${total.toFixed(2)}`, 'warning');
@@ -268,16 +270,15 @@ async function processCheckout() {
         }
 
         const receipt = await response.json();
-        // Если API не возвращает поля оплаты, можно добавить их на клиенте:
+
         receipt.paymentReceived = paymentReceived;
         receipt.change = change;
 
         showReceipt(receipt);
         clearCart();
-        fetchProducts(); // Обновление товаров для актуального остатка
+        fetchProducts();
         showToast('Checkout successful!', 'success');
 
-        // Очистка формы
         document.getElementById('cashier-name').value = '';
         document.getElementById('payment-method').selectedIndex = 0;
         paymentReceivedInput.value = '';

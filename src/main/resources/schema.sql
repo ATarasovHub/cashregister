@@ -14,8 +14,11 @@ CREATE TABLE IF NOT EXISTS receipts (
     total DECIMAL(10,2) NOT NULL,
     tax_amount DECIMAL(10,2) NOT NULL,
     cashier_name VARCHAR(255) NOT NULL,
-    payment_method VARCHAR(50) NOT NULL
-);
+    payment_method VARCHAR(50) NOT NULL,
+    payment_received DECIMAL(10,2),
+    change_amount DECIMAL(10,2)
+    );
+
 
 CREATE TABLE IF NOT EXISTS receipt_items (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

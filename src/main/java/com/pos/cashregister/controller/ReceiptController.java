@@ -1,6 +1,5 @@
 package com.pos.cashregister.controller;
 
-import com.pos.cashregister.dto.ReceiptDTO;
 import com.pos.cashregister.model.Receipt;
 import com.pos.cashregister.service.ReceiptService;
 import lombok.RequiredArgsConstructor;
@@ -42,9 +41,9 @@ public class ReceiptController {
 
     @PostMapping("/api")
     @ResponseBody
-    public ResponseEntity<?> createReceipt(@RequestBody ReceiptDTO receiptDTO) {
+    public ResponseEntity<?> createReceipt(@RequestBody Receipt receipt) {
         try {
-            Receipt savedReceipt = receiptService.createReceipt(receiptDTO);
+            Receipt savedReceipt = receiptService.createReceipt(receipt);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedReceipt);
         } catch (Exception e) {
             return ResponseEntity

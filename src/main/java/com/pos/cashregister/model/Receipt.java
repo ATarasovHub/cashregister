@@ -2,10 +2,8 @@ package com.pos.cashregister.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,14 +26,21 @@ public class Receipt {
     @JoinColumn(name = "receipt_id")
     private List<ReceiptItem> items;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal taxAmount;
 
+    @Column(nullable = false)
     private String cashierName;
 
+    @Column(nullable = false)
     private String paymentMethod;
-}
 
+    @Column(precision = 10, scale = 2)
+    private BigDecimal paymentReceived;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal changeAmount;
+}
