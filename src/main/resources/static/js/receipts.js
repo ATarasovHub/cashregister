@@ -76,7 +76,7 @@ function showReceiptModal(receipt) {
     const formattedDate = receiptDate.toLocaleDateString() + ' ' + receiptDate.toLocaleTimeString();
 
     const paymentReceived = parseFloat(receipt.paymentReceived ?? 0);
-    const change = parseFloat(receipt.change ?? 0);
+    const change = parseFloat(receipt.changeAmount ?? 0);
     const taxAmount = parseFloat(receipt.taxAmount ?? 0);
     const total = parseFloat(receipt.total ?? 0);
 

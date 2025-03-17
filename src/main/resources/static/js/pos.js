@@ -248,7 +248,7 @@ async function processCheckout() {
         cashierName: cashierName,
         paymentMethod: paymentMethod,
         paymentReceived: paymentReceived,
-        change: change,
+        changeAmount: change,
         items: cartItems.map(item => ({
             productId: item.productId,
             quantity: item.quantity
@@ -273,7 +273,7 @@ async function processCheckout() {
         console.log("Received receipt from server:", receipt);
 
         receipt.paymentReceived = paymentReceived;
-        receipt.change = change;
+        receipt.changeAmount = change;
 
         showReceipt(receipt);
         clearCart();
@@ -329,7 +329,7 @@ function showReceipt(receipt) {
                 <div class="receipt-cashier">Cashier: ${receipt.cashierName}</div>
                 <div class="receipt-payment">Payment: ${receipt.paymentMethod}</div>
                 <div class="receipt-received">Received: $${receipt.paymentReceived.toFixed(2)}</div>
-                <div class="receipt-change">Change: $${receipt.change.toFixed(2)}</div>
+                <div class="receipt.change">Change: $${receipt.changeAmount.toFixed(2)}</div>
             </div>
             <div class="receipt-items">
                 ${itemsHtml}
