@@ -242,13 +242,13 @@ async function processCheckout() {
         paymentReceivedInput.focus();
         return;
     }
-    const change = paymentReceived - total;
+    const changeAmount = paymentReceived - total;
 
     const receiptData = {
         cashierName: cashierName,
         paymentMethod: paymentMethod,
         paymentReceived: paymentReceived,
-        change: change,
+        change: changeAmount,
         items: cartItems.map(item => ({
             productId: item.productId,
             quantity: item.quantity
@@ -272,7 +272,7 @@ async function processCheckout() {
         const receipt = await response.json();
 
         receipt.paymentReceived = paymentReceived;
-        receipt.change = change;
+        receipt.change = changeAmount;
 
         showReceipt(receipt);
         clearCart();
