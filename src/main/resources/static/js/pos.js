@@ -152,7 +152,6 @@ function renderCart() {
 
         cartItemsContainer.appendChild(cartItemElement);
 
-        // Event listeners for quantity controls and removal
         const decreaseBtn = cartItemElement.querySelector('.quantity-btn.decrease');
         const increaseBtn = cartItemElement.querySelector('.quantity-btn.increase');
         const removeBtn = cartItemElement.querySelector('.remove-btn');
