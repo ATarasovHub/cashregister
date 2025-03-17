@@ -218,9 +218,35 @@ async function processCheckout() {
         return;
     }
 
+    // Новая валидация: сумма оплаты
+    const paymentReceivedInput = document.getElementById('payment-received');
+    const paymentReceivedValue = paymentReceivedInput.value.trim();
+    if (!paymentReceivedValue) {
+        showToast('Please enter payment amount', 'warning');
+        paymentReceivedInput.focus();
+        return;
+    }
+    const paymentReceived = parseFloat(paymentReceivedValue);
+    if (isNaN(paymentReceived)) {
+        showToast('Invalid payment amount', 'error');
+        paymentReceivedInput.focus();
+        return;
+    }
+
+    // Получаем текущую сумму заказа (без символа $)
+    const total = parseFloat(totalElement.textContent.replace('$', ''));
+    if (paymentReceived < total) {
+        showToast(`Insufficient payment. Total is $${total.toFixed(2)}`, 'warning');
+        paymentReceivedInput.focus();
+        return;
+    }
+    const change = paymentReceived - total;
+
     const receiptData = {
         cashierName: cashierName,
         paymentMethod: paymentMethod,
+        paymentReceived: paymentReceived,
+        change: change,
         items: cartItems.map(item => ({
             productId: item.productId,
             quantity: item.quantity
@@ -242,14 +268,19 @@ async function processCheckout() {
         }
 
         const receipt = await response.json();
+        // Если API не возвращает поля оплаты, можно добавить их на клиенте:
+        receipt.paymentReceived = paymentReceived;
+        receipt.change = change;
+
         showReceipt(receipt);
         clearCart();
-        fetchProducts(); // Refresh products to get updated stock
+        fetchProducts(); // Обновление товаров для актуального остатка
         showToast('Checkout successful!', 'success');
 
-        // Clear the form
+        // Очистка формы
         document.getElementById('cashier-name').value = '';
         document.getElementById('payment-method').selectedIndex = 0;
+        paymentReceivedInput.value = '';
     } catch (error) {
         showToast('Error: ' + error.message, 'error');
         console.error('Checkout error:', error);
@@ -280,6 +311,8 @@ function showReceipt(receipt) {
                 <div class="receipt-date">${formattedDate}</div>
                 <div class="receipt-cashier">Cashier: ${receipt.cashierName}</div>
                 <div class="receipt-payment">Payment: ${receipt.paymentMethod}</div>
+                <div class="receipt-received">Received: $${receipt.paymentReceived.toFixed(2)}</div>
+                <div class="receipt-change">Change: $${receipt.change.toFixed(2)}</div>
             </div>
             <div class="receipt-items">
                 <div class="receipt-item receipt-header-row">
@@ -318,6 +351,7 @@ function showReceipt(receipt) {
         showToast('Could not display receipt', 'error');
     }
 }
+
 
 function printReceipt() {
     const printWindow = window.open('', '_blank');
