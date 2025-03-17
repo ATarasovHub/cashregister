@@ -242,25 +242,25 @@ async function processCheckout() {
         paymentReceivedInput.focus();
         return;
     }
-    const changeAmount = paymentReceived - total;
+    const change = paymentReceived - total;
 
     const receiptData = {
         cashierName: cashierName,
         paymentMethod: paymentMethod,
         paymentReceived: paymentReceived,
-        change: changeAmount,
+        change: change,
         items: cartItems.map(item => ({
             productId: item.productId,
             quantity: item.quantity
         }))
     };
 
+    console.log("Sending receipt data:", receiptData);
+
     try {
         const response = await fetch('/receipts/api', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(receiptData)
         });
 
@@ -270,9 +270,10 @@ async function processCheckout() {
         }
 
         const receipt = await response.json();
+        console.log("Received receipt from server:", receipt);
 
         receipt.paymentReceived = paymentReceived;
-        receipt.change = changeAmount;
+        receipt.change = change;
 
         showReceipt(receipt);
         clearCart();
@@ -283,10 +284,26 @@ async function processCheckout() {
         document.getElementById('payment-method').selectedIndex = 0;
         paymentReceivedInput.value = '';
     } catch (error) {
+        console.error("Checkout error:", error);
         showToast('Error: ' + error.message, 'error');
-        console.error('Checkout error:', error);
     }
 }
+
+async function viewReceipt(receiptId) {
+    try {
+        const response = await fetch(`/receipts/api/${receiptId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch receipt details');
+        }
+        const receipt = await response.json();
+        console.log("Fetched receipt details:", receipt);
+        showReceiptModal(receipt);
+    } catch (error) {
+        console.error("Error fetching receipt:", error);
+        showToast('Error: ' + error.message, 'error');
+    }
+}
+
 
 function showReceipt(receipt) {
     const receiptDate = new Date(receipt.dateTime);

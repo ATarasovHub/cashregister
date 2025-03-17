@@ -38,9 +38,9 @@ public class Receipt {
     @Column(nullable = false)
     private String paymentMethod;
 
-    @Column()
+    @Column(name = "payment_received", precision = 10, scale = 2)
     private BigDecimal paymentReceived;
 
-    @Column()
+    @Column(name = "change_amount", precision = 10, scale = 2)
     private BigDecimal changeAmount;
 }
