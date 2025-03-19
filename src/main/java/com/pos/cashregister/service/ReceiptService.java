@@ -37,7 +37,6 @@ public class ReceiptService {
         receipt.setDateTime(LocalDateTime.now());
 
         List<ReceiptItem> items = new ArrayList<>();
-        // Формируем позиции чека на основании переданных items (в которых заданы только productId и quantity)
         incomingReceipt.getItems().forEach(item -> {
             Optional<Product> productOpt = productService.getProductById(item.getProductId());
             if (productOpt.isPresent()) {
@@ -57,7 +56,6 @@ public class ReceiptService {
         });
         receipt.setItems(items);
 
-        // Рассчитываем subtotal, tax (10%) и total
         BigDecimal subtotal = BigDecimal.ZERO;
         for (ReceiptItem item : items) {
             subtotal = subtotal.add(item.getTotal());
@@ -68,7 +66,6 @@ public class ReceiptService {
         receipt.setTaxAmount(taxAmount);
         receipt.setTotal(total);
 
-        // Сохраняем значения, переданные с клиента
         receipt.setPaymentReceived(incomingReceipt.getPaymentReceived());
         receipt.setChangeAmount(incomingReceipt.getChangeAmount());
 

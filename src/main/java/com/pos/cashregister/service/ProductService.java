@@ -2,6 +2,7 @@ package com.pos.cashregister.service;
 
 import com.pos.cashregister.model.Product;
 import com.pos.cashregister.repository.JpaProductRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,14 +12,10 @@ import java.util.Optional;
 
 @Service
 @Log4j2
+@RequiredArgsConstructor
 public class ProductService {
 
     private final JpaProductRepository productRepository;
-
-    @Autowired
-    public ProductService(JpaProductRepository productRepository) {
-        this.productRepository = productRepository;
-    }
 
     public List<Product> getAllProducts() {
         List<Product> products = productRepository.findAll();
