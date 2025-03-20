@@ -1,11 +1,12 @@
 
-INSERT INTO products (name, description, price, category, barcode, stock_quantity)
+INSERT INTO products (name,description,price, category,barcode,stock_quantity, product_type)
 VALUES
-    ('Apple', 'Fresh Red Apple', 1.99, 'Fruits', '123456', 50),
-    ('Banana', 'Yellow Banana', 0.99, 'Fruits', '654321', 100),
-    ('Milk', '1L Whole Milk', 2.49, 'Dairy', '111222', 30),
-    ('Bread', 'Whole Wheat Bread', 2.99, 'Bakery', '333444', 20),
-    ('Eggs', 'Pack of 12 Eggs', 3.99, 'Dairy', '555666', 40);
+    ('Apple', 'Fresh Red Apple', 1.99, 'Fruits', '123456', 50, 'ESSENTIAL'),
+    ('Banana', 'Yellow Banana', 0.99, 'Fruits', '654321', 100, 'ESSENTIAL'),
+    ('Milk', '1L Whole Milk', 2.49, 'Dairy', '111222', 30, 'ESSENTIAL'),
+    ('Bread', 'Whole Wheat Bread', 2.99, 'Bakery', '333444', 20, 'CONSUMER'),
+    ('Eggs', 'Pack of 12 Eggs', 3.99, 'Dairy', '555666', 40, 'CONSUMER');
+
 
 INSERT INTO receipts (date_time, total, tax_amount, cashier_name, payment_method, payment_received, change_amount)
 VALUES

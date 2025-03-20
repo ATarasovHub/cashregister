@@ -28,7 +28,6 @@
         </div>
 
         <div class="cart-panel">
-
             <div class="cashier-input">
                 <label for="cashier-name">Cashier Name</label>
                 <input type="text" id="cashier-name" required>
@@ -49,21 +48,32 @@
                 <input type="number" id="payment-received" required placeholder="Enter payment amount">
             </div>
 
-
-
             <div id="cart-items" class="cart-items">
                 <div class="empty-cart">Cart is empty</div>
             </div>
 
+            <!-- Карточка итогов покупки -->
             <div class="cart-summary">
+
+                <!-- 1) ОБЩЕЕ КОЛИЧЕСТВО ТОВАРОВ -->
+                <div class="total-row">
+                    <span>Total Items:</span>
+                    <span id="total-items">0</span>
+                </div>
+
+                <!-- 2) СУММА БЕЗ НДС -->
                 <div class="total-row">
                     <span>Subtotal:</span>
                     <span id="subtotal">$0.00</span>
                 </div>
+
+                <!-- 3) СУММАРНАЯ ЧАСТЬ НДС -->
                 <div class="total-row">
-                    <span>Tax (10%):</span>
+                    <span>VAT Portion:</span>
                     <span id="tax">$0.00</span>
                 </div>
+
+                <!-- 4) ИТОГОВАЯ СУММА С УЧЁТОМ НДС -->
                 <div class="total-row total">
                     <span>Total:</span>
                     <span id="total">$0.00</span>
@@ -92,7 +102,6 @@
         </div>
     </div>
 </div>
-
 
 <script src="/js/pos.js"></script>
 </body>

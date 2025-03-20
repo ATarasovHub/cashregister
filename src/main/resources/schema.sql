@@ -5,8 +5,10 @@ CREATE TABLE IF NOT EXISTS products (
     price DECIMAL(10,2) NOT NULL,
     category VARCHAR(255),
     barcode VARCHAR(50),
-    stock_quantity INT
-);
+    stock_quantity INT,
+    product_type VARCHAR(20) NOT NULL DEFAULT 'CONSUMER'
+    );
+
 
 CREATE TABLE IF NOT EXISTS receipts (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,

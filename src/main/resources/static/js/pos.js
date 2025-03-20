@@ -1,3 +1,5 @@
+// pos.js
+
 const productsGrid = document.getElementById('products-grid');
 const cartItemsContainer = document.getElementById('cart-items');
 const subtotalElement = document.getElementById('subtotal');
@@ -12,10 +14,16 @@ const receiptModalCloseBtn = document.querySelector('#receipt-modal .close-btn')
 const printReceiptBtn = document.getElementById('print-receipt-btn');
 const receiptContent = document.getElementById('receipt-content');
 
+// >>> ДОБАВЛЕН новый элемент, чтобы выводить общее количество товаров
+const totalItemsElement = document.getElementById('total-items');
+
 let products = [];
 let cartItems = [];
-const TAX_RATE = 0.10; // 10% tax rate
 
+// >>> Удалили TAX_RATE = 0.10;
+// Теперь ставка рассчитывается индивидуально для каждого товара.
+
+// Асинхронно загружаем список продуктов
 async function fetchProducts() {
     try {
         const response = await fetch('/products/api/all');
@@ -44,18 +52,27 @@ function renderProducts() {
         `;
 
         productCard.addEventListener('click', () => addToCart(product));
-
         productsGrid.appendChild(productCard);
     });
 }
 
+// >>> Ограничиваем до 5 разных товаров.
+// Если пользователь пытается добавить новый товар, а в корзине уже 5,
+// то не даём добавить.
 function addToCart(product) {
     if (product.stockQuantity <= 0) {
         showToast('Product is out of stock', 'error');
         return;
     }
 
+    // Проверяем, есть ли этот товар уже в корзине
     const existingItem = cartItems.find(item => item.productId === product.id);
+
+    // Если товара ещё нет в корзине, а у нас уже 5 разных товаров, запрещаем
+    if (!existingItem && cartItems.length >= 5) {
+        showToast('You can have a maximum of 5 different products in the cart.', 'warning');
+        return;
+    }
 
     if (existingItem) {
         if (existingItem.quantity < product.stockQuantity) {
@@ -82,12 +99,9 @@ function updateCartItemQuantity(productId, change) {
     productId = Number(productId);
 
     const itemIndex = cartItems.findIndex(item => item.productId === productId);
-    console.log('Updating quantity for product:', productId, 'change:', change, 'found at index:', itemIndex);
-
     if (itemIndex !== -1) {
         const item = cartItems[itemIndex];
         const newQuantity = item.quantity + change;
-        console.log('Current quantity:', item.quantity, 'New quantity:', newQuantity, 'Max:', item.maxQuantity);
 
         if (newQuantity > 0 && newQuantity <= item.maxQuantity) {
             item.quantity = newQuantity;
@@ -115,6 +129,7 @@ function removeCartItem(productId) {
     }
 }
 
+// >>> Главная функция для пересчёта корзины
 function renderCart() {
     cartItemsContainer.innerHTML = '';
 
@@ -123,16 +138,21 @@ function renderCart() {
         subtotalElement.textContent = '$0.00';
         taxElement.textContent = '$0.00';
         totalElement.textContent = '$0.00';
+        totalItemsElement.textContent = '0'; // сбрасываем
         disableCheckout();
         return;
     }
 
     let subtotal = 0;
+    let totalVat = 0;
+    let totalItems = 0; // сумма количеств
 
     cartItems.forEach(item => {
         const itemTotal = item.price * item.quantity;
         subtotal += itemTotal;
+        totalItems += item.quantity;
 
+        // Создаём DOM-элемент для позиции
         const cartItemElement = document.createElement('div');
         cartItemElement.className = 'cart-item';
 
@@ -152,6 +172,7 @@ function renderCart() {
 
         cartItemsContainer.appendChild(cartItemElement);
 
+        // Навешиваем события
         const decreaseBtn = cartItemElement.querySelector('.quantity-btn.decrease');
         const increaseBtn = cartItemElement.querySelector('.quantity-btn.increase');
         const removeBtn = cartItemElement.querySelector('.remove-btn');
@@ -177,16 +198,34 @@ function renderCart() {
         });
     });
 
-    const tax = subtotal * TAX_RATE;
-    const total = subtotal + tax;
+    // >>> РАСЧЁТ НДС
+    // Для каждой позиции узнаем её productType, чтобы понять ставку
+    // (7% для ESSENTIAL, 19% для CONSUMER).
+    cartItems.forEach(cartItem => {
+        const product = products.find(p => p.id === cartItem.productId);
+        if (!product) return; // safety check
 
+        let vatRate = 0.19; // по умолчанию consumer goods
+        if (product.productType === 'ESSENTIAL') {
+            vatRate = 0.07;
+        }
+
+        const itemSubtotal = cartItem.price * cartItem.quantity;
+        const itemVat = itemSubtotal * vatRate;
+        totalVat += itemVat;
+    });
+
+    // Итоговая сумма
+    const total = subtotal + totalVat;
+
+    // Округления для вывода
     subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
-    taxElement.textContent = `$${tax.toFixed(2)}`;
+    taxElement.textContent = `$${totalVat.toFixed(2)}`;
     totalElement.textContent = `$${total.toFixed(2)}`;
+    totalItemsElement.textContent = totalItems.toString();
 
     enableCheckout();
 }
-
 
 function enableCheckout() {
     checkoutBtn.disabled = false;
@@ -243,6 +282,7 @@ async function processCheckout() {
     }
     const change = paymentReceived - total;
 
+    // Подготавливаем данные для отправки
     const receiptData = {
         cashierName: cashierName,
         paymentMethod: paymentMethod,
@@ -253,8 +293,6 @@ async function processCheckout() {
             quantity: item.quantity
         }))
     };
-
-    console.log("Sending receipt data:", receiptData);
 
     try {
         const response = await fetch('/receipts/api', {
@@ -269,11 +307,10 @@ async function processCheckout() {
         }
 
         const receipt = await response.json();
-        console.log("Received receipt from server:", receipt);
-
         receipt.paymentReceived = paymentReceived;
         receipt.changeAmount = change;
 
+        // Показать чек
         showReceipt(receipt);
         clearCart();
         fetchProducts();
@@ -295,14 +332,12 @@ async function viewReceipt(receiptId) {
             throw new Error('Failed to fetch receipt details');
         }
         const receipt = await response.json();
-        console.log("Fetched receipt details:", receipt);
         showReceiptModal(receipt);
     } catch (error) {
         console.error("Error fetching receipt:", error);
         showToast('Error: ' + error.message, 'error');
     }
 }
-
 
 function showReceipt(receipt) {
     const receiptDate = new Date(receipt.dateTime);
@@ -335,7 +370,7 @@ function showReceipt(receipt) {
             </div>
             <div class="receipt-total">
                 Subtotal: $${(receipt.total - receipt.taxAmount).toFixed(2)}<br>
-                Tax (10%): $${receipt.taxAmount.toFixed(2)}<br>
+                VAT (total): $${receipt.taxAmount.toFixed(2)}<br>
                 Total: $${receipt.total.toFixed(2)}
             </div>
             <div class="receipt-footer">
@@ -352,8 +387,6 @@ function showReceipt(receipt) {
         showToast('Could not display receipt', 'error');
     }
 }
-
-
 
 function printReceipt() {
     const printWindow = window.open('', '_blank');
@@ -387,7 +420,7 @@ function showToast(message, type = 'success') {
 
     document.body.appendChild(toast);
 
-    toast.offsetHeight;
+    toast.offsetHeight; // reflow
 
     toast.classList.add('show');
 
@@ -418,7 +451,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
 
     if (printReceiptBtn) {
         printReceiptBtn.addEventListener('click', printReceipt);

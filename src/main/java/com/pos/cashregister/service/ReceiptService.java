@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,34 +38,54 @@ public class ReceiptService {
         receipt.setDateTime(LocalDateTime.now());
 
         List<ReceiptItem> items = new ArrayList<>();
-        incomingReceipt.getItems().forEach(item -> {
+
+        BigDecimal grandSubtotal = BigDecimal.ZERO;
+        BigDecimal grandVat = BigDecimal.ZERO;
+
+        for (ReceiptItem item : incomingReceipt.getItems()) {
             Optional<Product> productOpt = productService.getProductById(item.getProductId());
             if (productOpt.isPresent()) {
                 Product product = productOpt.get();
+
+                BigDecimal itemSubtotal = product.getPrice()
+                        .multiply(BigDecimal.valueOf(item.getQuantity()))
+                        .setScale(2, RoundingMode.HALF_UP);
+
+                double vatRate = 0.19;
+                if (product.getProductType() != null
+                        && product.getProductType().name().equals("ESSENTIAL")) {
+                    vatRate = 0.07;
+                }
+
+                BigDecimal itemVat = itemSubtotal
+                        .multiply(BigDecimal.valueOf(vatRate))
+                        .setScale(2, RoundingMode.HALF_UP);
+
+                BigDecimal itemTotal = itemSubtotal.add(itemVat).setScale(2, RoundingMode.HALF_UP);
+
                 ReceiptItem newItem = ReceiptItem.builder()
                         .productId(product.getId())
                         .productName(product.getName())
                         .price(product.getPrice())
                         .quantity(item.getQuantity())
-                        .total(product.getPrice()
-                                .multiply(BigDecimal.valueOf(item.getQuantity()))
-                                .setScale(2, BigDecimal.ROUND_HALF_UP))
+                        .total(itemTotal)
                         .build();
+
                 items.add(newItem);
+
                 productService.updateStock(product.getId(), item.getQuantity());
+
+                grandSubtotal = grandSubtotal.add(itemSubtotal);
+                grandVat = grandVat.add(itemVat);
             }
-        });
+        };
+
         receipt.setItems(items);
 
-        BigDecimal subtotal = BigDecimal.ZERO;
-        for (ReceiptItem item : items) {
-            subtotal = subtotal.add(item.getTotal());
-        }
-        BigDecimal taxAmount = subtotal.multiply(new BigDecimal("0.10")).setScale(2, BigDecimal.ROUND_HALF_UP);
-        BigDecimal total = subtotal.add(taxAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
+        BigDecimal grandTotal = grandSubtotal.add(grandVat).setScale(2, RoundingMode.HALF_UP);
 
-        receipt.setTaxAmount(taxAmount);
-        receipt.setTotal(total);
+        receipt.setTaxAmount(grandVat);
+        receipt.setTotal(grandTotal);
 
         receipt.setPaymentReceived(incomingReceipt.getPaymentReceived());
         receipt.setChangeAmount(incomingReceipt.getChangeAmount());

@@ -34,4 +34,7 @@ public class Product {
 
     private int stockQuantity;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProductType productType;
 }

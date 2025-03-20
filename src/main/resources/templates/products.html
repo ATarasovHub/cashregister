@@ -57,6 +57,15 @@
                 <input type="number" id="product-stock" class="form-control" min="0" required>
               </div>
 
+              <!-- НОВОЕ ПОЛЕ: Тип товара (ESSENTIAL или CONSUMER) -->
+              <div class="form-group mb-3">
+                <label for="product-type" class="form-label">Product Type</label>
+                <select id="product-type" class="form-control" required>
+                  <option value="ESSENTIAL">ESSENTIAL</option>
+                  <option value="CONSUMER">CONSUMER</option>
+                </select>
+              </div>
+
               <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Save Product</button>
                 <button type="button" id="cancel-edit-btn" class="btn btn-secondary" style="display: none;">Cancel</button>
@@ -82,12 +91,16 @@
                   <th>Category</th>
                   <th>Barcode</th>
                   <th>Stock</th>
+
+                  <!-- НОВЫЙ СТОЛБЕЦ: Тип -->
+                  <th>Type</th>
+
                   <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:if="${#lists.isEmpty(products)}">
-                  <td colspan="7" class="text-center">No products found. Add some products to get started.</td>
+                  <td colspan="8" class="text-center">No products found. Add some products to get started.</td>
                 </tr>
                 <tr th:each="product : ${products}">
                   <td th:text="${product.name}"></td>
@@ -96,6 +109,10 @@
                   <td th:text="${product.category ?: '-'}"></td>
                   <td th:text="${product.barcode ?: '-'}"></td>
                   <td th:text="${product.stockQuantity}"></td>
+
+                  <!-- Отображаем значение поля productType -->
+                  <td th:text="${product.productType}"></td>
+
                   <td>
                     <button class="btn btn-sm btn-secondary edit-btn" th:data-id="${product.id}">Edit</button>
                     <button class="btn btn-sm btn-danger delete-btn" th:data-id="${product.id}">Delete</button>
