@@ -56,19 +56,14 @@ function renderProducts() {
     });
 }
 
-// >>> Ограничиваем до 5 разных товаров.
-// Если пользователь пытается добавить новый товар, а в корзине уже 5,
-// то не даём добавить.
 function addToCart(product) {
     if (product.stockQuantity <= 0) {
         showToast('Product is out of stock', 'error');
         return;
     }
 
-    // Проверяем, есть ли этот товар уже в корзине
     const existingItem = cartItems.find(item => item.productId === product.id);
 
-    // Если товара ещё нет в корзине, а у нас уже 5 разных товаров, запрещаем
     if (!existingItem && cartItems.length >= 5) {
         showToast('You can have a maximum of 5 different products in the cart.', 'warning');
         return;
@@ -198,14 +193,11 @@ function renderCart() {
         });
     });
 
-    // >>> РАСЧЁТ НДС
-    // Для каждой позиции узнаем её productType, чтобы понять ставку
-    // (7% для ESSENTIAL, 19% для CONSUMER).
     cartItems.forEach(cartItem => {
         const product = products.find(p => p.id === cartItem.productId);
-        if (!product) return; // safety check
+        if (!product) return;
 
-        let vatRate = 0.19; // по умолчанию consumer goods
+        let vatRate = 0.19;
         if (product.productType === 'ESSENTIAL') {
             vatRate = 0.07;
         }

@@ -66,6 +66,10 @@ function renderProductsTable() {
 }
 
 
+// Ищем select-элемент для productType
+const productTypeInput = document.getElementById('product-type');
+
+// В функции submitProductForm добавьте поле productType в объект productData:
 async function submitProductForm(event) {
     event.preventDefault();
 
@@ -75,19 +79,20 @@ async function submitProductForm(event) {
         price: parseFloat(productPriceInput.value),
         category: productCategoryInput.value.trim(),
         barcode: productBarcodeInput.value.trim(),
-        stockQuantity: parseInt(productStockInput.value, 10)
+        stockQuantity: parseInt(productStockInput.value, 10),
+        // ВАЖНО: передаём productType
+        productType: productTypeInput.value  // будет "ESSENTIAL" или "CONSUMER"
     };
 
+    // Дополнительные проверки
     if (!productData.name) {
         showToast('Product name is required', 'error');
         return;
     }
-
     if (isNaN(productData.price) || productData.price <= 0) {
         showToast('Valid price is required', 'error');
         return;
     }
-
     if (isNaN(productData.stockQuantity) || productData.stockQuantity < 0) {
         showToast('Valid stock quantity is required', 'error');
         return;
@@ -116,7 +121,6 @@ async function submitProductForm(event) {
         }
 
         const savedProduct = await response.json();
-
         if (isEditing) {
             showToast('Product updated successfully');
         } else {
@@ -129,6 +133,7 @@ async function submitProductForm(event) {
         showToast('Error: ' + error.message, 'error');
     }
 }
+
 
 function editProduct(productId) {
     productId = Number(productId);
