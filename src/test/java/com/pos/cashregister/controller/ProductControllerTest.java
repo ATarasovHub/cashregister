@@ -165,4 +165,41 @@ public class ProductControllerTest {
         verify(productService, never()).saveProduct(any(Product.class));
     }
 
+    @Test
+    void shouldDeleteProductSuccessfullyTest() {
+        Long productId = 1L;
+        Product existingProduct  = Product.builder()
+                .id(productId)
+                .name("Old Name")
+                .description("Old Description")
+                .price(BigDecimal.valueOf(10.99))
+                .category("Old Category")
+                .barcode("123456789")
+                .stockQuantity(50)
+                .build();
+
+        when(productService.getProductById(productId)).thenReturn(Optional.of(existingProduct));
+        doNothing().when(productService).deleteProduct(productId);
+
+        ResponseEntity<Void> response = productController.deleteProduct(productId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+
+        verify(productService).getProductById(productId);
+        verify(productService).deleteProduct(productId);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenProductDoesNotExistTest() {
+        Long productId = 1L;
+        when(productService.getProductById(productId)).thenReturn(Optional.empty());
+
+        ResponseEntity<Void> response = productController.deleteProduct(productId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+
+        verify(productService).getProductById(productId);
+        verify(productService, never()).deleteProduct(anyLong());
+    }
+
 }
