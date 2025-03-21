@@ -12,9 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -22,12 +22,15 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ReceiptControllerTest {
-    @Mock private ReceiptService service;
-    @Mock private Model model;
-    @InjectMocks private ReceiptController controller;
+    @Mock
+    private ReceiptService service;
+    @Mock
+    private Model model;
+    @InjectMocks
+    private ReceiptController controller;
 
     @Test
-    void getHomeProducktPageTest(){
+    void getHomeProducktPageTest() {
         String viewName = controller.getReceiptsPage(model);
 
         verify(model).addAttribute(eq("receipts"), anyList());
@@ -35,7 +38,7 @@ public class ReceiptControllerTest {
     }
 
     @Test
-    void getAllReceiptsShouldReturnListOfProductsWhenProductsExist(){
+    void getAllReceiptsShouldReturnListOfProductsWhenProductsExist() {
         List<Receipt> mocReceipts = List.of(
                 Receipt.builder()
                         .id(1L)
@@ -54,4 +57,32 @@ public class ReceiptControllerTest {
         assertEquals(2, response.getBody().size());
     }
 
+    @Test
+    void getReceiptByIdShouldReturnOkWithProductDetails() {
+        Long receiptId = 1L;
+        Receipt mockReceipt = new Receipt();
+        mockReceipt.setId(receiptId);
+
+        when(service.getReceiptById(receiptId)).thenReturn(Optional.of(mockReceipt));
+
+        ResponseEntity<Receipt> response = controller.getReceiptById(receiptId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(mockReceipt, response.getBody());
+        verify(service).getReceiptById(receiptId);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenReceiptDoesNotExist() {
+        Long receiptId = 1L;
+
+        when(service.getReceiptById(receiptId)).thenReturn(Optional.empty());
+
+        ResponseEntity<Receipt> response = controller.getReceiptById(receiptId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertNull(response.getBody());
+
+        verify(service).getReceiptById(receiptId);
+    }
 }

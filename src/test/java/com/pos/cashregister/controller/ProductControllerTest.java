@@ -71,7 +71,6 @@ public class ProductControllerTest {
         Long productId = 1L;
         Product mockProduct = new Product();
         mockProduct.setId(productId);
-        mockProduct.setName("Test Product");
 
         when(productService.getProductById(productId)).thenReturn(Optional.of(mockProduct));
 
