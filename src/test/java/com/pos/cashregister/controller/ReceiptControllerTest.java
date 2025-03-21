@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -90,7 +89,6 @@ public class ReceiptControllerTest {
 
     @Test
     void shouldCreateReceiptWhenValidData() {
-        LocalDateTime now = LocalDateTime.now();
         Receipt mockReceipt = new Receipt();
 
         ReceiptItem item = new ReceiptItem();
