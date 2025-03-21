@@ -79,4 +79,5 @@ public class ReceiptController {
             return ResponseEntity.notFound().build();
         }
     }
+
 }

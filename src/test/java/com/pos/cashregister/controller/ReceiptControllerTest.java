@@ -1,6 +1,7 @@
 package com.pos.cashregister.controller;
 
 import com.pos.cashregister.model.Receipt;
+import com.pos.cashregister.model.ReceiptItem;
 import com.pos.cashregister.service.ReceiptService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,14 +12,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ReceiptControllerTest {
@@ -84,5 +86,67 @@ public class ReceiptControllerTest {
         assertNull(response.getBody());
 
         verify(service).getReceiptById(receiptId);
+    }
+
+    @Test
+    void shouldCreateReceiptWhenValidData() {
+        LocalDateTime now = LocalDateTime.now();
+        Receipt mockReceipt = new Receipt();
+
+        ReceiptItem item = new ReceiptItem();
+        mockReceipt.setItems(List.of(item));
+
+        when(service.createReceipt(mockReceipt)).thenReturn(mockReceipt);
+
+        ResponseEntity<?> response = controller.createReceipt(mockReceipt);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(mockReceipt, response.getBody());
+
+        verify(service).createReceipt(mockReceipt);
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenErrorCreatingReceipt() {
+        Receipt mockReceipt = new Receipt();
+
+        ReceiptItem item = new ReceiptItem();
+        mockReceipt.setItems(List.of(item));
+
+        when(service.createReceipt(mockReceipt)).thenThrow(new RuntimeException("Creation failed"));
+
+        ResponseEntity<?> response = controller.createReceipt(mockReceipt);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertTrue(Objects.requireNonNull(response.getBody()).toString().contains("Error creating receipt"));
+
+        verify(service).createReceipt(mockReceipt);
+    }
+
+    @Test
+    void shouldDeleteReceiptWhenExists() {
+        Long receiptId = 1L;
+        Receipt mockReceipt = new Receipt();
+        mockReceipt.setId(receiptId);
+
+        when(service.getReceiptById(receiptId)).thenReturn(Optional.of(mockReceipt));
+        doNothing().when(service).deleteReceipt(receiptId);
+
+        ResponseEntity<Void> response = controller.deleteReceipt(receiptId);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(service).deleteReceipt(receiptId);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenReceiptDoesNotExistTest() {
+        Long receiptId = 1L;
+
+        when(service.getReceiptById(receiptId)).thenReturn(Optional.empty());
+
+        ResponseEntity<Void> response = controller.deleteReceipt(receiptId);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(service, never()).deleteReceipt(receiptId);
     }
 }
