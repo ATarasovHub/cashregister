@@ -18,8 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -83,4 +82,28 @@ public class ProductControllerTest {
         assertEquals(mockProduct, response.getBody());
         verify(productService).getProductById(productId);
     }
+
+    @Test
+    void shouldCreateProductTest() {
+        Product mockProduct = Product.builder()
+                .id(1L)
+                .name("Test Product")
+                .description("Test Description")
+                .price(BigDecimal.valueOf(10.99))
+                .category("Test Category")
+                .barcode("123456789")
+                .stockQuantity(50)
+                .build();
+
+        when(productService.saveProduct(any(Product.class))).thenReturn(mockProduct);
+
+        ResponseEntity<Product> response = productController.createProduct(mockProduct);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(mockProduct, response.getBody());
+
+        verify(productService).saveProduct(mockProduct);
+    }
+
 }
