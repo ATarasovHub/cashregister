@@ -19,8 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ProductControllerTest {
@@ -104,6 +103,66 @@ public class ProductControllerTest {
         assertEquals(mockProduct, response.getBody());
 
         verify(productService).saveProduct(mockProduct);
+    }
+
+    @Test
+    void shouldUpdateProductSuccessfullyTest() {
+        Long productId = 1L;
+        Product existingProduct = Product.builder()
+                .id(productId)
+                .name("Old Name")
+                .description("Old Description")
+                .price(BigDecimal.valueOf(10.99))
+                .category("Old Category")
+                .barcode("123456789")
+                .stockQuantity(50)
+                .build();
+
+        Product updatedProduct = Product.builder()
+                .id(productId)
+                .name("New Name")
+                .description("New Description")
+                .price(BigDecimal.valueOf(15.99))
+                .category("New Category")
+                .barcode("987654321")
+                .stockQuantity(30)
+                .build();
+
+        when(productService.getProductById(productId)).thenReturn(Optional.of(existingProduct));
+        when(productService.saveProduct(any(Product.class))).thenReturn(updatedProduct);
+
+        ResponseEntity<Product> response = productController.updateProduct(productId, updatedProduct);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(updatedProduct.getName(), response.getBody().getName());
+        assertEquals(updatedProduct.getPrice(), response.getBody().getPrice());
+        assertEquals(updatedProduct.getPrice(), response.getBody().getPrice());
+
+        verify(productService).getProductById(productId);
+        verify(productService).saveProduct(updatedProduct);
+    }
+
+    @Test
+    void shouldReturnNotFoundWhenProductDoesNotExist() {
+        Long productId = 1L;
+        Product updatedProduct = Product.builder()
+                .id(productId)
+                .name("New Name")
+                .description("New Description")
+                .price(BigDecimal.valueOf(15.99))
+                .category("New Category")
+                .barcode("987654321")
+                .stockQuantity(30)
+                .build();
+
+        when(productService.getProductById(productId)).thenReturn(Optional.empty());
+
+        ResponseEntity<Product> response = productController.updateProduct(productId, updatedProduct);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        verify(productService).getProductById(productId);
+        verify(productService, never()).saveProduct(any(Product.class));
     }
 
 }
