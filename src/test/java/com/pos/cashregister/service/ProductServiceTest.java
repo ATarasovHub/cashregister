@@ -43,7 +43,7 @@ public class ProductServiceTest {
 
         assertEquals(2, result.size());
         assertEquals("Product 1", result.getFirst().getName());
-        assertEquals("Product 2", result.getLast().getName());
+        assertEquals("Product 2", result.get(1).getName());
 
         verify(repository).findAll();
     }
