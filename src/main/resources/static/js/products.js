@@ -65,11 +65,8 @@ function renderProductsTable() {
     });
 }
 
-
-// Ищем select-элемент для productType
 const productTypeInput = document.getElementById('product-type');
 
-// В функции submitProductForm добавьте поле productType в объект productData:
 async function submitProductForm(event) {
     event.preventDefault();
 
@@ -80,11 +77,9 @@ async function submitProductForm(event) {
         category: productCategoryInput.value.trim(),
         barcode: productBarcodeInput.value.trim(),
         stockQuantity: parseInt(productStockInput.value, 10),
-        // ВАЖНО: передаём productType
-        productType: productTypeInput.value  // будет "ESSENTIAL" или "CONSUMER"
+        productType: productTypeInput.value
     };
 
-    // Дополнительные проверки
     if (!productData.name) {
         showToast('Product name is required', 'error');
         return;
