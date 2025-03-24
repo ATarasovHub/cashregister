@@ -1,6 +1,9 @@
 package com.pos.cashregister.service;
 
+import com.pos.cashregister.model.Product;
+import com.pos.cashregister.model.ProductType;
 import com.pos.cashregister.model.Receipt;
+import com.pos.cashregister.model.ReceiptItem;
 import com.pos.cashregister.repository.JpaReceiptRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,9 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +27,10 @@ public class ReceiptServiceTest {
     private ReceiptService service;
     @Mock
     private JpaReceiptRepository repository;
+    @Mock
+    private ProductService productService;
+    @Mock
+    private JpaReceiptRepository receiptRepository;
 
     @Test
     void shouldReturnListOfReceipts() {
@@ -76,28 +82,49 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    void shouldReturnReceiptsWithinDateRange() {
-        Receipt receipt1 = new Receipt();
-        receipt1.setDateTime(LocalDateTime.of(2025,3,1,12,0,0));
+    void createReceipt_shouldCalculateTotalsAndSaveReceipt() {
+        Product product = Product.builder()
+                .id(1L)
+                .name("Milk")
+                .price(new BigDecimal("2.00"))
+                .productType(ProductType.ESSENTIAL)
+                .stockQuantity(10)
+                .build();
 
-        Receipt receipt2 = new Receipt();
-        receipt2.setDateTime(LocalDateTime.of(2025,3,10,12,0,0));
+        ReceiptItem item = ReceiptItem.builder()
+                .productId(1L)
+                .quantity(2)
+                .build();
 
-        Receipt receipt3 = new Receipt();
-        receipt3.setDateTime(LocalDateTime.of(2025,3,20,12,0,0));
+        Receipt incomingReceipt = Receipt.builder()
+                .cashierName("John")
+                .paymentMethod("Cash")
+                .items(List.of(item))
+                .paymentReceived(new BigDecimal("5.00"))
+                .changeAmount(new BigDecimal("0.00"))
+                .build();
 
-        List<Receipt> receipts = Arrays.asList(receipt1, receipt2, receipt3);
+        when(productService.getProductById(1L)).thenReturn(Optional.of(product));
+        when(receiptRepository.save(any(Receipt.class))).thenAnswer(i -> i.getArguments()[0]);
 
-        when(repository.findAll()).thenReturn(receipts);
+        Receipt saved = service.createReceipt(incomingReceipt);
 
-        String startDate = "2025-03-05";
-        String endDate = "2025-03-15";
+        assertEquals("John", saved.getCashierName());
+        assertEquals("Cash", saved.getPaymentMethod());
+        assertEquals(1, saved.getItems().size());
 
-        List<Receipt> result = service.searchReceiptsByDateRange(startDate, endDate);
+        ReceiptItem savedItem = saved.getItems().get(0);
+        assertEquals("Milk", savedItem.getProductName());
+        assertEquals(new BigDecimal("2.00"), savedItem.getPrice());
+        assertEquals(2, savedItem.getQuantity());
 
-        assertEquals(1, result.size());
-        assertEquals(receipt2, result.get(0));
+        BigDecimal expectedSubtotal = new BigDecimal("4.00");
+        BigDecimal expectedVat = expectedSubtotal.multiply(new BigDecimal("0.07")).setScale(2);
+        BigDecimal expectedTotal = expectedSubtotal.add(expectedVat).setScale(2);
 
-        verify(repository).findAll();
+        assertEquals(expectedVat, saved.getTaxAmount());
+        assertEquals(expectedTotal, saved.getTotal());
+        verify(productService, times(1)).updateStock(1L, 2);
+        verify(receiptRepository, times(1)).save(any(Receipt.class));
     }
 }
