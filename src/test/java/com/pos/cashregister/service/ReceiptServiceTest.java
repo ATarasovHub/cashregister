@@ -1,6 +1,7 @@
 package com.pos.cashregister.service;
 
 import com.pos.cashregister.model.Receipt;
+import com.pos.cashregister.model.ReceiptItem;
 import com.pos.cashregister.repository.JpaReceiptRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,13 +9,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -24,6 +24,8 @@ public class ReceiptServiceTest {
     private ReceiptService service;
     @Mock
     private JpaReceiptRepository repository;
+    @Mock
+    private ProductService productService;
 
     @Test
     void shouldReturnListOfReceipts() {
@@ -61,5 +63,10 @@ public class ReceiptServiceTest {
         assertTrue(result.isPresent());
         assertEquals(receipt, result.get());
         verify(repository).findById(receiptId);
+    }
+
+    @Test
+    void shouldDeleteReceiptSuccessfully() {
+        Long receiptId = 1L;
     }
 }
