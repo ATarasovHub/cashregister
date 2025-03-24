@@ -9,8 +9,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 
@@ -42,7 +44,25 @@ public class ProductServiceTest {
         assertEquals("Product 1", result.getFirst().getName());
         assertEquals("Product 2", result.getLast().getName());
 
-        verify(repository, times(1)).findAll();
+        verify(repository).findAll();
     }
+
+    @Test
+    void shouldReturnProductByIdWhenProductExist() {
+        Long productId = 1L;
+        Product mockProduct = new Product();
+        mockProduct.setId(productId);
+
+        when(repository.findById(productId)).thenReturn(Optional.of(mockProduct));
+
+        Optional<Product> result = service.getProductById(productId);
+
+        assertTrue(result.isPresent());
+        assertEquals(mockProduct, result.get());
+        verify(repository).findById(productId);
+
+    }
+
+
 
 }
