@@ -11,8 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 
@@ -60,9 +59,29 @@ public class ProductServiceTest {
         assertTrue(result.isPresent());
         assertEquals(mockProduct, result.get());
         verify(repository).findById(productId);
-
     }
 
+    @Test
+    void shouldSaveProductSuccessfully(){
+     Product product = Product.builder()
+             .id(1L)
+             .build();
 
+     when(repository.save(product)).thenReturn(product);
 
+     Product savedProduct = service.saveProduct(product);
+
+     assertNotNull(savedProduct);
+     assertEquals(savedProduct.getId(), product.getId());
+     verify(repository).save(product);
+    }
+
+    @Test
+    void shouldDeleteProductSuccessfully() {
+        Long productId = 1L;
+
+        service.deleteProduct(productId);
+
+        verify(repository).deleteById(productId);
+    }
 }
