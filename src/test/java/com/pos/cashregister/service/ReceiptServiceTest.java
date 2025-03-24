@@ -68,5 +68,11 @@ public class ReceiptServiceTest {
     @Test
     void shouldDeleteReceiptSuccessfully() {
         Long receiptId = 1L;
+
+        doNothing().when(repository).deleteById(receiptId);
+
+        service.deleteReceipt(receiptId);
+
+        verify(repository).deleteById(receiptId);
     }
 }

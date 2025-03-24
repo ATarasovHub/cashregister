@@ -82,6 +82,8 @@ public class ProductServiceTest {
     void shouldDeleteProductSuccessfully() {
         Long productId = 1L;
 
+        doNothing().when(repository).deleteById(productId);
+
         service.deleteProduct(productId);
 
         verify(repository).deleteById(productId);
