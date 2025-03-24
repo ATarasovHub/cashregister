@@ -1,7 +1,6 @@
 package com.pos.cashregister.service;
 
 import com.pos.cashregister.model.Receipt;
-import com.pos.cashregister.model.ReceiptItem;
 import com.pos.cashregister.repository.JpaReceiptRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +8,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,8 +25,6 @@ public class ReceiptServiceTest {
     private ReceiptService service;
     @Mock
     private JpaReceiptRepository repository;
-    @Mock
-    private ProductService productService;
 
     @Test
     void shouldReturnListOfReceipts() {
@@ -74,5 +73,31 @@ public class ReceiptServiceTest {
         service.deleteReceipt(receiptId);
 
         verify(repository).deleteById(receiptId);
+    }
+
+    @Test
+    void shouldReturnReceiptsWithinDateRange() {
+        Receipt receipt1 = new Receipt();
+        receipt1.setDateTime(LocalDateTime.of(2025,3,1,12,0,0));
+
+        Receipt receipt2 = new Receipt();
+        receipt2.setDateTime(LocalDateTime.of(2025,3,10,12,0,0));
+
+        Receipt receipt3 = new Receipt();
+        receipt3.setDateTime(LocalDateTime.of(2025,3,20,12,0,0));
+
+        List<Receipt> receipts = Arrays.asList(receipt1, receipt2, receipt3);
+
+        when(repository.findAll()).thenReturn(receipts);
+
+        String startDate = "2025-03-05";
+        String endDate = "2025-03-15";
+
+        List<Receipt> result = service.searchReceiptsByDateRange(startDate, endDate);
+
+        assertEquals(1, result.size());
+        assertEquals(receipt2, result.get(0));
+
+        verify(repository).findAll();
     }
 }

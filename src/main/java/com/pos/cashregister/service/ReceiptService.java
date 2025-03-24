@@ -10,10 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -105,6 +107,15 @@ public class ReceiptService {
     }
 
     public List<Receipt> searchReceiptsByDateRange(String startDate, String endDate) {
-        return receiptRepository.findAll();
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+
+        return receiptRepository.findAll()
+                .stream()
+                .filter(receipt -> {
+                    LocalDate receiptDate = receipt.getDateTime().toLocalDate();
+                    return !receiptDate.isBefore(start) && !receiptDate.isAfter(end);
+                })
+                .collect(Collectors.toList());
     }
 }
