@@ -90,7 +90,7 @@ public class ReceiptServiceTest {
                 .productType(ProductType.ESSENTIAL)
                 .stockQuantity(10)
                 .build();
-
+//HEHEHEHHE
         ReceiptItem item = ReceiptItem.builder()
                 .productId(1L)
                 .quantity(2)
