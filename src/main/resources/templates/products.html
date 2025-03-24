@@ -8,7 +8,9 @@
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-<div th:replace="~{fragments/layout :: header}"></div>
+<div th:replace="~{fragments/layout :: header}"
+     th:with="activePage='products'">
+</div>
 
 <div class="container">
   <div class="main-content">
@@ -57,7 +59,6 @@
                 <input type="number" id="product-stock" class="form-control" min="0" required>
               </div>
 
-              <!-- НОВОЕ ПОЛЕ: Тип товара (ESSENTIAL или CONSUMER) -->
               <div class="form-group mb-3">
                 <label for="product-type" class="form-label">Product Type</label>
                 <select id="product-type" class="form-control" required>
@@ -91,8 +92,6 @@
                   <th>Category</th>
                   <th>Barcode</th>
                   <th>Stock</th>
-
-                  <!-- НОВЫЙ СТОЛБЕЦ: Тип -->
                   <th>Type</th>
 
                   <th>Actions</th>
@@ -109,8 +108,6 @@
                   <td th:text="${product.category ?: '-'}"></td>
                   <td th:text="${product.barcode ?: '-'}"></td>
                   <td th:text="${product.stockQuantity}"></td>
-
-                  <!-- Отображаем значение поля productType -->
                   <td th:text="${product.productType}"></td>
 
                   <td>

@@ -14,16 +14,11 @@ const receiptModalCloseBtn = document.querySelector('#receipt-modal .close-btn')
 const printReceiptBtn = document.getElementById('print-receipt-btn');
 const receiptContent = document.getElementById('receipt-content');
 
-// >>> ДОБАВЛЕН новый элемент, чтобы выводить общее количество товаров
 const totalItemsElement = document.getElementById('total-items');
 
 let products = [];
 let cartItems = [];
 
-// >>> Удалили TAX_RATE = 0.10;
-// Теперь ставка рассчитывается индивидуально для каждого товара.
-
-// Асинхронно загружаем список продуктов
 async function fetchProducts() {
     try {
         const response = await fetch('/products/api/all');
@@ -124,7 +119,6 @@ function removeCartItem(productId) {
     }
 }
 
-// >>> Главная функция для пересчёта корзины
 function renderCart() {
     cartItemsContainer.innerHTML = '';
 
@@ -140,14 +134,13 @@ function renderCart() {
 
     let subtotal = 0;
     let totalVat = 0;
-    let totalItems = 0; // сумма количеств
+    let totalItems = 0;
 
     cartItems.forEach(item => {
         const itemTotal = item.price * item.quantity;
         subtotal += itemTotal;
         totalItems += item.quantity;
 
-        // Создаём DOM-элемент для позиции
         const cartItemElement = document.createElement('div');
         cartItemElement.className = 'cart-item';
 
@@ -167,7 +160,6 @@ function renderCart() {
 
         cartItemsContainer.appendChild(cartItemElement);
 
-        // Навешиваем события
         const decreaseBtn = cartItemElement.querySelector('.quantity-btn.decrease');
         const increaseBtn = cartItemElement.querySelector('.quantity-btn.increase');
         const removeBtn = cartItemElement.querySelector('.remove-btn');
@@ -207,10 +199,8 @@ function renderCart() {
         totalVat += itemVat;
     });
 
-    // Итоговая сумма
     const total = subtotal + totalVat;
 
-    // Округления для вывода
     subtotalElement.textContent = `$${subtotal.toFixed(2)}`;
     taxElement.textContent = `$${totalVat.toFixed(2)}`;
     totalElement.textContent = `$${total.toFixed(2)}`;
@@ -274,7 +264,6 @@ async function processCheckout() {
     }
     const change = paymentReceived - total;
 
-    // Подготавливаем данные для отправки
     const receiptData = {
         cashierName: cashierName,
         paymentMethod: paymentMethod,
@@ -302,7 +291,6 @@ async function processCheckout() {
         receipt.paymentReceived = paymentReceived;
         receipt.changeAmount = change;
 
-        // Показать чек
         showReceipt(receipt);
         clearCart();
         fetchProducts();
