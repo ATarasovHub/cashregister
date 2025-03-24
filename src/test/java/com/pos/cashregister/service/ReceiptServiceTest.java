@@ -12,7 +12,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,8 +31,7 @@ public class ReceiptServiceTest {
     private JpaReceiptRepository repository;
     @Mock
     private ProductService productService;
-    @Mock
-    private JpaReceiptRepository receiptRepository;
+
 
     @Test
     void shouldReturnListOfReceipts() {
@@ -49,10 +50,10 @@ public class ReceiptServiceTest {
         List<Receipt> result = service.getAllReceipts();
 
         assertEquals(2, result.size());
-        assertEquals(1L,result.getFirst().getId());
-        assertEquals(2L,result.get(1).getId());
+        assertEquals(1L, result.getFirst().getId());
+        assertEquals(2L, result.get(1).getId());
 
-        verify(repository).findAll() ;
+        verify(repository).findAll();
     }
 
     @Test
@@ -105,7 +106,7 @@ public class ReceiptServiceTest {
                 .build();
 
         when(productService.getProductById(1L)).thenReturn(Optional.of(product));
-        when(receiptRepository.save(any(Receipt.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(repository.save(any(Receipt.class))).thenAnswer(i -> i.getArguments()[0]);
 
         Receipt saved = service.createReceipt(incomingReceipt);
 
@@ -125,6 +126,32 @@ public class ReceiptServiceTest {
         assertEquals(expectedVat, saved.getTaxAmount());
         assertEquals(expectedTotal, saved.getTotal());
         verify(productService, times(1)).updateStock(1L, 2);
-        verify(receiptRepository, times(1)).save(any(Receipt.class));
+        verify(repository, times(1)).save(any(Receipt.class));
+    }
+
+    @Test
+    void shouldReturnReceiptsWithinDateRange() {
+        Receipt receipt1 = new Receipt();
+        receipt1.setDateTime(LocalDateTime.of(2025, 3, 1, 12, 0, 0));
+
+        Receipt receipt2 = new Receipt();
+        receipt2.setDateTime(LocalDateTime.of(2025, 3, 10, 12, 0, 0));
+
+        Receipt receipt3 = new Receipt();
+        receipt3.setDateTime(LocalDateTime.of(2025, 3, 20, 12, 0, 0));
+
+        List<Receipt> receipts = Arrays.asList(receipt1, receipt2, receipt3);
+
+        when(repository.findAll()).thenReturn(receipts);
+
+        String startDate = "2025-03-05";
+        String endDate = "2025-03-15";
+
+        List<Receipt> result = service.searchReceiptsByDateRange(startDate, endDate);
+
+        assertEquals(1, result.size());
+        assertEquals(receipt2, result.get(0));
+
+        verify(repository).findAll();
     }
 }
