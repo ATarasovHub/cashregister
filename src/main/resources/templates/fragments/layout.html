@@ -2,21 +2,21 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS System Layout</title>
+    <!-- Подключаем общий CSS, шрифты, что нужно -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 
 <header th:fragment="header" class="header">
-    <div class="container">
-        <div class="header-content">
-            <a href="/" class="logo">404NotFoundTeam</a>
-            <ul class="nav-links">
-                <li><a href="/">Cash Register</a></li>
-                <li><a href="/products">Products</a></li>
-                <li><a href="/receipts">Receipts</a></li>
-            </ul>
-        </div>
-    </div>
+    <nav class="nav">
+        <div class="logo">404NotFoundTeam</div>
+        <ul class="nav-links">
+            <li><a th:href="@{/}" class="${activePage == 'cashregister'} ? 'active' : ''">Cash Register</a></li>
+            <li><a th:href="@{/products}" class="${activePage == 'products'} ? 'active' : ''">Products</a></li>
+            <li><a th:href="@{/receipts}" class="${activePage == 'receipts'} ? 'active' : ''">Receipts</a></li>
+        </ul>
+    </nav>
 </header>
 
 <footer th:fragment="footer" class="footer mt-5">
@@ -26,5 +26,6 @@
         </div>
     </div>
 </footer>
+
 </body>
 </html>
