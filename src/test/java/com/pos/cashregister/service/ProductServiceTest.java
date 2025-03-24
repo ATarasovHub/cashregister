@@ -18,8 +18,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
 
-    @InjectMocks private ProductService service;
-    @Mock private JpaProductRepository repository;
+    @InjectMocks
+    private ProductService service;
+    @Mock
+    private JpaProductRepository repository;
 
     @Test
     void shouldReturnListOfProductsWhenProductsExist() {
@@ -62,18 +64,18 @@ public class ProductServiceTest {
     }
 
     @Test
-    void shouldSaveProductSuccessfully(){
-     Product product = Product.builder()
-             .id(1L)
-             .build();
+    void shouldSaveProductSuccessfully() {
+        Product product = Product.builder()
+                .id(1L)
+                .build();
 
-     when(repository.save(product)).thenReturn(product);
+        when(repository.save(product)).thenReturn(product);
 
-     Product savedProduct = service.saveProduct(product);
+        Product savedProduct = service.saveProduct(product);
 
-     assertNotNull(savedProduct);
-     assertEquals(savedProduct.getId(), product.getId());
-     verify(repository).save(product);
+        assertNotNull(savedProduct);
+        assertEquals(savedProduct.getId(), product.getId());
+        verify(repository).save(product);
     }
 
     @Test
@@ -84,4 +86,76 @@ public class ProductServiceTest {
 
         verify(repository).deleteById(productId);
     }
+
+    @Test
+    void shouldReturnTrueWhenProductAvailable() {
+        Long productId = 1L;
+        int requestedQuantity = 5;
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setStockQuantity(10);
+
+        when(repository.findById(productId)).thenReturn(Optional.of(product));
+
+        boolean result = service.isProductAvailable(productId, requestedQuantity);
+
+        assertTrue(result);
+        verify(repository).findById(productId);
+
+    }
+
+    @Test
+    void shouldReturnFalseWhenProductNotAvailable() {
+       Long productId = 1L;
+       int requestedQuantity = 10;
+
+       Product product = new Product();
+       product.setId(productId);
+       product.setStockQuantity(10);
+
+       when(repository.findById(productId)).thenReturn(Optional.empty());
+
+       boolean result = service.isProductAvailable(productId,requestedQuantity);
+
+       assertFalse(result);
+       verify(repository).findById(productId);
+    }
+
+    @Test
+    void shouldUpdateStockSuccessfullyWhenQuantityChangeIsValid() {
+        Long productId = 1L;
+        int quantityChange = 5;
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setStockQuantity(10);
+
+        when(repository.findById(productId)).thenReturn(Optional.of(product));
+
+        boolean result = service.updateStock(productId,quantityChange);
+
+        assertTrue(result);
+        assertEquals(5,product.getStockQuantity());
+        verify(repository).save(product);
+    }
+
+    @Test
+    void shouldNotUpdateStockSuccessfullyWhenQuantityChangeIsInvalid() {
+        Long productId = 1L;
+        int quantityChange = 10;
+
+        Product product = new Product();
+        product.setId(productId);
+        product.setStockQuantity(5);
+
+        when(repository.findById(productId)).thenReturn(Optional.of(product));
+
+        boolean result = service.updateStock(productId,quantityChange);
+
+        assertFalse(result);
+        assertEquals(5, product.getStockQuantity());
+        verify(repository, never()).save(product);
+    }
+
 }
