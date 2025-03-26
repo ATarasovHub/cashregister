@@ -49,9 +49,12 @@ function renderProductsTable() {
             <td>${product.stockQuantity}</td>
             <td>${product.productType || '-'}</td>
             <td>
+              <div class="action-buttons">
                 <button class="btn btn-sm btn-secondary edit-btn" data-id="${product.id}">Edit</button>
                 <button class="btn btn-sm btn-danger delete-btn" data-id="${product.id}">Delete</button>
+              </div>
             </td>
+
         `;
 
         tableBody.appendChild(row);

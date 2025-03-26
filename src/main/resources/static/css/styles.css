@@ -542,3 +542,19 @@ body {
     margin-top: 1rem;
     font-style: italic;
 }
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-buttons .btn {
+    min-width: 70px;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+
