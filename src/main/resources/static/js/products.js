@@ -32,7 +32,7 @@ function renderProductsTable() {
 
     if (products.length === 0) {
         const emptyRow = document.createElement('tr');
-        emptyRow.innerHTML = '<td colspan="7" class="text-center">No products found. Add some products to get started.</td>';
+        emptyRow.innerHTML = '<td colspan="8" class="text-center">No products found. Add some products to get started.</td>';
         tableBody.appendChild(emptyRow);
         return;
     }
@@ -47,6 +47,7 @@ function renderProductsTable() {
             <td>${product.category || '-'}</td>
             <td>${product.barcode || '-'}</td>
             <td>${product.stockQuantity}</td>
+            <td>${product.productType || '-'}</td>
             <td>
                 <button class="btn btn-sm btn-secondary edit-btn" data-id="${product.id}">Edit</button>
                 <button class="btn btn-sm btn-danger delete-btn" data-id="${product.id}">Delete</button>

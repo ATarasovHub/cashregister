@@ -26,10 +26,10 @@ public class Receipt {
     @JoinColumn(name = "receipt_id")
     private List<ReceiptItem> items;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private BigDecimal total;
 
-    @Column(nullable = false, precision = 10, scale = 2)
+    @Column(nullable = false)
     private BigDecimal taxAmount;
 
     @Column(nullable = false)
@@ -38,9 +38,9 @@ public class Receipt {
     @Column(nullable = false)
     private String paymentMethod;
 
-    @Column(name = "payment_received", precision = 10, scale = 2)
+    @Column(name = "payment_received")
     private BigDecimal paymentReceived;
 
-    @Column(name = "change_amount", precision = 10, scale = 2)
+    @Column(name = "change_amount")
     private BigDecimal changeAmount;
 }
