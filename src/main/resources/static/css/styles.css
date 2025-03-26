@@ -543,18 +543,25 @@ body {
     font-style: italic;
 }
 
+.receipt-footer p {
+    margin: 0;
+}
+
 .action-buttons {
-    display: flex;
+    display: inline-flex;
     gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
     justify-content: center;
     align-items: center;
 }
 
+
 .action-buttons .btn {
-    min-width: 70px;
+    min-width: 80px;
     padding: 0.375rem 0.75rem;
     font-size: 0.875rem;
-    line-height: 1.25;
+    text-align: center;
     white-space: nowrap;
 }
+
 

@@ -41,9 +41,12 @@ function renderReceiptsTable(receipts) {
             <td>${receipt.items.length} items</td>
             <td>$${parseFloat(receipt.total).toFixed(2)}</td>
             <td>
+              <div class="action-buttons">
                 <button class="btn btn-sm btn-secondary view-btn" data-id="${receipt.id}">View</button>
                 <button class="btn btn-sm btn-danger delete-btn" data-id="${receipt.id}">Delete</button>
+              </div>
             </td>
+
         `;
 
         tableBody.appendChild(row);
